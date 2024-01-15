@@ -320,14 +320,14 @@ count_SNPs <- function(file_path) {
 # Include the code you used to generate the plot in this block. When you knit your document the plot will be generated and displayed below.
 
 ```
-#?# 17. Below is a plot which shows the distribution of variants across the genome, with peaks being colored by the depth of reads at that genomic locus. Recreate this plot using the data from your sample. (4 pts)
+#?# 17. Included in the assignment repo is a plot which shows the distribution of **variants** across the genome. You can download and view this plot manually. Recreate this plot using the data from your sample. Include the original svg and your recreation in your submission. (4 pts)
 ```{r}
 # HINT: You'll want to start by looking at the documentation for the GenomicRanges and GenomicDistributions packages.
 library(GenomicRanges)
 library(GenomicDistributions)
 ```
 
-![Chr1_VariantsvsReadDepth](A1_draft_files/figure-gfm/unnamed-chunk-21-1.png)
+![Chr1_VariantsvsPos](Chr1_VariantsvsPos.svg)
 
 #### c. Interactively viewing our variants in IGV
 You can download the IGV viewer from here: https://software.broadinstitute.org/software/igv/home. IGV is an interactive tool to visualize different data types of genetic information (e.g. bam, bed files). You will install this tool to your **local computer**. To visualize where the reads of our ChIP analysis mapped in the genome. 
