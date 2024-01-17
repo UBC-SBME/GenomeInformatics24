@@ -36,7 +36,7 @@ You'd put your answer here
 If you are not sure that your assignment is done simply search for #?# and make sure you've filled everything out.
 
 ### Installing R and R Studio
-We will largely do our analysis in R. R is most easily set up by downloading and installing RStudio (https://rstudio-education.github.io/hopr/starting.html). Ensure you have set up CRAN and Bioconductor (https://www.bioconductor.org/install/) properly. If you have any questions about setting up RStudio or Bioconductor please contact one of the instructors. Messing up your R install can be a major headache. 
+We will largely do our analysis in R **on your local computer** (do not try to install R on the server). R is most easily set up by downloading and installing RStudio (https://rstudio-education.github.io/hopr/starting.html). Ensure you have set up CRAN and Bioconductor (https://www.bioconductor.org/install/) properly. If you have any questions about setting up RStudio or Bioconductor please contact one of the instructors. Messing up your R install can be a major headache. 
 
 ### Getting set up on the server
 For our course we will be using a server based on a Docker/Linux system. This will be the place where you will do your assignments and project. There are several things that you need to be aware while working on the server:
@@ -267,6 +267,7 @@ For this section we will be using samtools to check the alignment of our data.
 
 ### Part 5: Vizualization and Downstream Analysis
 #### a. Setting up a reproducible analysis in R
+**Reminder that you will be doing your analysis in RStudio on your local computer.**
 Before you start analyzing the sequencing data, we will go over some essential methods for reprodicible analysis in R. Generally installing packages in RStudio is very easy, with packages being mantained on the CRAN repository. For example to install the common ggplot visualization package in RStudio:
 
 ```{r, eval=FALSE}
