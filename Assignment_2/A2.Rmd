@@ -17,6 +17,7 @@ In this assignment we will be using the following tools:
 - [sambamba](http://lomereiter.github.io/sambamba/docs/sambamba-view.html)
 - [trimmomatic](http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf)
 - [liftover](https://genome.ucsc.edu/cgi-bin/hgLiftOver)
+- [bedtools](https://bedtools.readthedocs.io/en/latest/)
 - [conda](https://conda.io/docs/)
 - [snakemake](https://snakemake.readthedocs.io/en/stable/)
 
