@@ -57,7 +57,7 @@ These histone modifications mark states of active (H3K27ac, H3K4me3) or inactive
 ```{bash, eval=FALSE}
 Below is the command for converting the input DNA data into a bigWig file using the bamCoverage tool from the deepTools suite. 
 """
-input_chr3_subset.bam bamCoverage \
+bamCoverage \
 -b input_chr3_subset.bam -o \
 input_chr3_subset.bw -p 2
 """
