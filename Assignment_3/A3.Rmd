@@ -85,7 +85,7 @@ While exploring the bigwig files of the epigenetic marks on IGV, you probably no
 
 ChIP-seq reads cluster together in high density regions called peaks. These peaks peaks can look different depending on what sort of protein you are pulling down in your experiment. Certain well-characterized epigentic marks are broadly classified as either active or repressive marks and we can differentiate them by visualizing their peaks. 
 
-The deepTools **computeMatrix reference-point** command calculates scores to represent the reads mapping to specified regions of the genome across different files. We will use these matrices to compute heatmaps which will allow us to visualize the peaks of each epigenetic mark in our experiment at certain genes of interest.
+The deepTools **computeMatrix scale-regions** command calculates scores to represent the reads mapping to specified regions of the genome across different files. We will use these matrices to compute heatmaps which will allow us to visualize the peaks of each epigenetic mark in our experiment at certain genes of interest.
 
 Specifically, we will use the genes located in the `reference_genes.bed` file which is located `project/bmeg/A3` directory. This file contains the coordinates of genes for which we want to understand 
 
