@@ -121,7 +121,7 @@ Now that the scores matrix has been computed we can use it to create a heatmap t
 
 ```
 #?# 9. The above heatmap was made with the ratio of ChIP to input. Repeat the process above, but this time using the raw bigwig files (not input-normalized). 
-# Include a IGV screenshot of this analysis, below this code block. (0.25 pt)
+# Include a screenshot of this heatmap, below this code block. (0.25 pt)
 # How does this compare to the input-normalized data? Why do you think this is? (1pt)
 
 
