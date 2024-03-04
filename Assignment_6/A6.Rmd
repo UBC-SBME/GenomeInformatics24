@@ -1,0 +1,266 @@
+---
+title: BMEG 424 Assignment 6
+output:
+  github_document:
+    toc: true
+    toc_depth: 4
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# BMEG 424 Assignment 6: GWAS and Polygenic Risk Scores ()
+## Introduction:
+### Goals and Objectives
+The goal of this assignment is to teach you about the basics of working with GWAS data, including imputation of genotypes, QC, and using polygenic scores. Polygenic scores (PRSs) can be useful for predicting disease susceptibility. This is essential for complex diseases which are not monogenic (i.e. caused by a single gene). 
+
+Our goal for this assignment will be to produce a PRS for a complex trait using two different approaches; a manual approach to teach you the basics of how PRSs are calculated from GWAS data, and a more automated (and more accurate) approach using the `PRSc_calc` pipeline. 
+
+### Data
+We will be using three different datasets during this assignment:
+
+- Mini Cohort of GWAS samples (SNPs called by SNP arrays) contain in the `MiniCohort` folder. Each dataset is in the "bfile" format used by blink which is in fact three different files: `*.bed`, `*.bim`, and `*.fam`. The `*.bim` file contains the SNP information, the `*.fam` file contains the sample information, and the `*.bed` file contains the genotype information (NOTE: this `.bed` file is NOT the same as the binary file format used by the `bedtools` package). 
+
+- A reference 1KGP dataset which we will use for imputation also in bfile format. 
+
+- A simulated dataset in the `Tapas` folder. This dataset is in the same format as the Mini Cohort data.
+
+- A pair of simulated patient data files in the `pgsc_calc` folder. These files are in the same format as the Mini Cohort data.
+
+All of the data is located in `/projects/bmeg/A6`. 
+
+### Software and Tools:
+We will be using a few new tools in this assignment:
+
+  1. `plink` is a tool for working with GWAS data. It is a command line tool, so you will need to use it from the terminal. You can find the documentation for `plink` [here](https://www.cog-genomics.org/plink/1.9/). `plink` can be installed from the bioconda channel using the command `conda install -c bioconda plink`.
+
+  2. `nextflow` is a tool for running workflows/pipelines. It is a command line tool, so you will need to use it from the terminal. You can find the documentation for `nextflow` [here](https://www.nextflow.io/). NOTE: Nextflow is already installed on the server and we will be using this version for the assignment. **Do not install Nextflow using conda**.
+
+### Other notes:
+- As always you must cite any sources you use in your assignment (class slides are exempted). This includes any code you use from StackOverflow, ChatGPT, Github, etc. Failure to cite your sources will result in (at least) a zero on the assignment.
+
+- When you begin your assignment do not copy the data from `/projects/bmeg/A6/` to your home directory. You can use the files in the projects folder without modifying them. Remember to output any files you create in your home directory *and not in the projects directory*. You should gzip files while you are working on the assignment and remember to delete files you no long need. If you take up too much space in your home directory you will not be able to save your work and will prevent others from doing the same, you will also make TA Omar very unhappy :(
+
+- The setup and first run of nextflow will be more time consuming than most other steps on the assignments so far. It may be a a good idea to skip to section 4.a) and do the test of nextflow with pgsc_calc before you start the rest of the assignment.
+  
+### Submission:
+Submit your assignment as a knitted RMarkdown document. *Remember to specify the output as github_document* You will push your knitted RMarkdown document to your github repository (one for each group). Double check that all files (including figures) necessary for your document to render properly are uploaded to your repository. 
+
+You will then submit the link, along with the names and student numbers of all students who worked on the assignment to the assignment 3 page on Canvas. Your assignment should be submtited, and your last commit should be made, before 11:59pm on the day of the deadline. Late assignments will will be deducted 10% per day late. Assignments will not be accepted after 3 days past the deadline.
+
+## Experiment and Analysis:
+### 1. General QC of the GWAS Mini-Cohort Data
+Before we can start working on the genetic data, we need to ensure that the quality is adequate. Thus, we are gonna check the following measuring for our MiniCohort:
+
+   1. **SNP call rate:** The call rate represents the percentage of participants with non-missing data for that SNP. Removing variants with a call rate lower than 95% avoids potential wrong calls to be included in further analysis. Therefore we would like to *remove all SNPs with more than 5% missingness*
+   
+   2. **Minor Allele Frequency:** The minor allele frequency (MAF) echoes the less common allele frequency across the population. The MAF estimates tend to be more accurate for higher MAFs and the population sample size the MAF was based on. If there are too few samples representing the rare-allele, is hard to distinguish between a true rare-allele and sequencing errors. For our data we would like to *remove all SNPs with a MAF lower than 1%*.
+   
+   3. **Sample call rate:** Similar to SNP call rate, it allows to filter out all samples exceeding 98% missing genetic variants out of all the calls. Four our data we would like to *remove all samples with more than 2% missingness*.
+
+You can perform all of these filters using a single command calling `plink`. Take a look at the plink documentation and add the arguments to the command below to perform the QC. 
+
+```{bash, eval=FALSE}
+#?# 1. Fill in the following command and use it to perform the QC on the Mini-Cohort data. Read the instructions above carefully to get the right values for each argument. (1 pt)
+
+plink --bfile /projects/bmeg/A6/MiniCohort/Mini_cohort <args> --out /home/<username>/A6/MiniCohort/Mini_cohort_QCed
+
+```
+
+### 2. Imputation of Genotypes from 1000 Genomes Data
+As you learned in class, most GWAS studies are performed using a case-control design. In this design, the frequency of a genetic variant is compared between individuals with a disease and individuals without the disease. The frequency of the variant is then compared between the two groups to determine if the variant is associated with the disease. This produces the GWAS summary statistics which can be used to calculate a polygenic score.
+
+However, in order to calculate the polygenic score, we need to have the genotypes for all of the variants in the GWAS summary statistics. This is where imputation comes in. Because most GWAS studies are performed using a SNP array, we only have data for a subset of the variants in the genome. Imputation is the process of using the data from the SNP array to infer the genotypes for the rest of the variants in the genome using a matched population of fully genotyped individuals. 
+
+We will use the 1000 Genomes Project reference data (located in `/projects/bmeg/A6/1000G/`) to impute the genotypes for the Mini Cohort. This dataset has genetic information of major continental populations: Admixed American (AMR), European (EU), Asian (AS) and African (A). 
+
+#### a. Linkage Disequilibrium
+As you learned in class, linkage disequilibrium (LD) is the non-random association of alleles at different loci. This means that if you know the genotype of one SNP, you can make an educated guess about the genotype of another SNP. This is a problem for PCA because it will add redundancy to the data which means those regions will dominate the top PCs and obscure the true data structure. Therefore, we need to remove SNPs in high LD before performing the PCA. 
+
+We have curated a list of high LD regions for you located in `/projects/bmeg/A6/high_LD_regions_hg19.txt` which you can use to remove the SNPs in high LD using `plink`. You can use the `--exclude` argument to remove the SNPs in high LD. 
+
+We will also want to perform *dynamic* LD pruning which is available to us through `plink`. This will remove SNPs which are in high LD with one another *but are not in a known region of high LD*. This is important because the high LD regions are not necessarily exhaustive of all SNPs a patient may have. You can see how to do this in the following [documentation](https://www.cog-genomics.org/plink/1.9/ld). 
+
+```{bash, eval=FALSE}
+# Using only one run of plink 1.9 (with different flags)
+# Filter out the high-LD regions contained in the --high_LD_regions_hg19.txt-- file, located in /projects/bmeg/A7/
+# Use the --indep-pairwise to do LD pruning with the following parameters:
+## - Window size: 200, 
+## - Variant Count: 100 
+## - VIF (variance inflation factor): 0.2 
+#?# 2. Type the command you use to create the Mini Cohort PCA-QCed bfile below (1pt)
+
+
+```
+
+You should have a new file called `plink.prune.in` which you can use to extract only the SNPs which passed the LD pruning. You can use the `--extract` argument to do this. 
+
+```{bash, eval=FALSE}
+#?# 3. Use plink to extract the SNPs which passed the LD pruning from the QC'd minicohort file you created in Q1. (1pt)
+
+#?# 4. Do the same on the 1KGP_reference bfile which is located in /projects/bmeg/A7/1000G/ (1pt)
+
+```
+
+
+#### b. PCA Computation 
+In order to enhance imputation accuracy when dealing with ethnically diverse cohorts is important to understand the genetic ancestries of the cohort's participants. Knowing the ancestral populations will ensure that the most closely related population is used as a reference for the imputation. For instance, one would not want to impute haplotypes of an individual of Yoruban ancestry with a population of East Asians because many of the haplotypes will differ between the two ancestries, leading to imputing the wrong variants for the Yoruban person. Hence, we will analyze the global ancestry of our cohort using Principal Component Analysis (PCA). As you will remember from the last assignment PCA is an unsupervised way to reduce the complexity of multidimensional data.
+
+You can create a merged bfile (containing a .fam, .bed and .bim file) from your Mini_Cohort (containing our GWAS data) and the 1000G_reference (containing the reference data) using the `--bmerge` argument. 
+
+```{bash, eval=FALSE}
+#?# 5.  Merge your pruned bfiles of the Mini_cohort and the 1KGP created on the previous step (0.5pts)
+## NOTE: Remember to create a new bfile (.fam, .bed and .bim files) that contains the merged data.
+## IMPORTANT TIME CONSTRAINT: This step can take ~15 minutes, so make sure to check the server status before you run it!
+
+```
+
+You can now perform a PCA on the merged bfile you output in the last step: 
+```{bash, eval=FALSE}
+#?# 6. Using plink, perform a PCA analysis in plink on the merged set (0.5pts)
+
+
+```
+
+#### c. Visualization of the PCA results
+You PCA computation should have output a `.eigenvec` file. Copy this file, and the `samples_info.txt` file which is located in `/projects/bmeg/A6/MiniCohort/` to your local machine. You can use the `samples_info.txt` file to color the PCA plot by population. 
+
+First you will want to load your `.eigenvec` and `samples_info.txt` file into R. You can use the `read.table` function to do this. Set the column names for the `.eigenvec` file to change the column names to: FID, IID, PC1, PC2, PC3, ..., PC20. Set the column names to: FID, IID, SuperPopulation, Population. 
+
+#?# 7. Load the `.eigenvec` and `samples_info.txt` file into R and set the column names as described above. (0.25 pts)
+```{r, eval=FALSE}
+
+```
+
+#?# 8. Merge the two dataframes using the IID column (look at the merge function documentation by typing `?merge` in the R console). (0.25 pts)
+```{r, eval=FALSE}
+
+```
+
+#?# 9. ## Using ggplot create a scatterplot, using:
+- x-axis: PC1
+- y-axis: PC2
+- color: SuperPopulation - to use the Population information to color the samples and be able to appreciate population structure
+```{r} 
+# include the code used to generate the plot below, when you knit your Rmd file verify that the plot is displayed
+```
+
+#?# 10. Where do the cohort samples fall? (0.5 pts)
+
+
+
+#?# 11. Which population would you use as a reference for imputation? Why? (1.5 pts)
+
+
+#### d. Imputation
+Imputation of genetic data is a very computationally intensive analysis, that can take a long time. So we have performed it for you. Using the chromosome 17 imputation information located in `/projects/bmeg/A6/MiniCohort` under the `Mini_cohort_chr17_imputation_results.info` we will calculate some post-imputation metrics. 
+
+Load the imputation.info file into your R environment using `read.table` and then calculate the average imputation quality for each population. 
+
+#?# 12. What is the percentage of imputed SNPs? (1 pt)
+```{r}
+
+```
+
+The metric of imputation quality is Rsq, this is the estimated value of the squared correlation between imputed and true genotypes. Since true genotypes are not available, this calculation is based on the idea that poorly imputed genotype counts will shrink towards their expectations based on allele frequencies observed in the population (https://genome.sph.umich.edu/wiki/Minimac3_Info_File#Rsq).  An Rsq < 0.3 is often used to flag poorly imputed SNPs.
+
+#?# 13. What is the percentage of poorly imputed SNPs? (1 pt)
+```{r}
+
+```
+
+#?# 14. Visualize the distribution of the MAF in your imputed data (0.5 pts)
+```{r}
+
+```
+
+#?# 15. Analyze the plot above, what do you notice? (2 pts)
+
+
+### 3. Calculating Polygenic Scores (manual approach)
+For this section we will calculate the polygenic scores for a complex trait; enjoyment of the Spanish snack "tapas". A GWAS was performed and 199 SNPs were found to be significantly associated with tapas enjoyment. 
+
+The significant SNPs and their associated effect sizes (GWAS summary statistics) are found in the `tapas` folder in the `Tapas_enjoyability_GWAS_sumStats.txt` file. 
+
+Thanks to our imputation, we were able to impute the genotypes for the 199 significant SNPs in our Mini Cohort. The imputed genotypes are located in the `tapas` folder in named `MiniCohort_Tapas_SNPdosages.txt` They take the form of gene dosage (double risk alleles=2, one risk allele=1, no risk alleles=0) for SNPs 1-199. 
+
+PRS are calculated by multiplying the effect size of each SNP by the gene dosage (in an individual) and summing the results. Mathematically this is represented as:
+
+$$PRS = \sum_{i=1}^{n} \beta_{i} * G_{i}$$
+
+Where:
+
+- $PRS$ is the polygenic score
+
+- $n$ is the number of SNPs
+
+- $\beta_{i}$ is the effect size of the $i^{th}$ SNP
+
+- $G_{i}$ is the gene dosage of the $i^{th}$ SNP
+
+#?# 16. Using the above information, calculate the PRS for each individual in the Mini Cohort.  
+```{r}
+# Tip: You only need the files in the tapas directory to complete this question
+```
+
+
+#?# 17. Plot a histogram of the PRSs. (0.5 pts)
+```{r}
+
+```
+
+#?# 18. What do you notice about the distribution of the PRSs? (1 pt)
+
+
+### 4. Calculating Polygenic Scores (automated approach)
+#### a. Setting up the pgsc_calc pipeline
+Important: Nextflow will create a hidden .nextflow directory wherever you run the pipeline, if you are not careful your work will interfere with your classmates (and vice versa). **To be safe copy the `/projects/bmeg/A6/pgsc_calc` directory to your home directory before doing anything else.**
+
+```{bash, eval=FALSE}
+#?# 19. Go into the copy of the pgsc_calc directory which is located in your home directory and type pwd to get the full path. Paste the command and path below. (0.5 pts)
+# do all further work in this directory 
+```
+
+`pgsc_calc` is a pipeline that automates the calculation of polygenic scores given a set of genotypes in bfile format. It uses the PGS catalog's GWAS summary statistics compiled over many experiments for many traits to calculate the PRS.
+
+The pipeline primarily uses nextflow and dockemr to operate. Installing docker and nextflow on our system is not easy and so we have done it for you. You can find a yaml file to install a conda environment with nextflow and all its requirements already installed at `/projects/bmeg/A6/nextflow.yaml`. You can install this environment using the command `conda env create  <env_name> -f /projects/bmeg/A6/nextflow.yaml`.
+
+Once you have created your environment, you can run the pipeline using the command `nextflow run pgscatalog/pgsc_calc -profile test,conda`. The pipeline will perform a test run using dummy data to ensure your installation is correct. 
+
+**Important: Nextflow has to install the pipeline and all it's (many) dependencies the first time you run it. This can take a long time (up to 30 minutes).**
+*If you receive any errors when you run the pipeline for the first time, please let us know on Piazza.*
+
+#### b. Running the pipeline
+You will need to run the pipeline on the bfile files located in `/projects/bmeg/A6/pgsc_calc/`. You cannot pass these directly to `pgsc_calc` but instead must use a sample sheet which you can find in the same directory (# Tip: https://pgsc-calc.readthedocs.io/en/latest/how-to/prepare.html).
+
+Now that we have our sample sheet set up, we need to find our other input to pgsc_calc; the scoring files. The scoring files used by pgsc_calc come from the Polygenic Score (PGS) catalog and contain variant associations/effect sizes determined through GWAS. This large public repository makes things much easier for researchers like us. 
+
+The PGS catalog groups all score files associated with a particular trait under a specific EFO id. The EFO id we will be using today is MONDO_0008315.
+
+#?# 20. What is the trait associated with the EFO id MONDO_0008315? (1 pt)
+
+The trait is Prostate cancer. 
+
+```{bash, eval=FALSE}
+#?# 21. Use nextflow to run the pgsc_calc pipeline on the bfile files located in /projects/bmeg/A6/pgsc_calc/. (1 pt) Remember to use:
+# - the sample sheet mentioned in the previous paragraph
+# - the EFO id mentioned in the paragraph
+# - the hg38 (GRCh37) reference genome
+# - the conda profile
+# - a minimum overlap of 0.45
+
+
+```
+
+## Discussion: 
+#?# 22. What assumption of PCA is violated by the presence of SNPs in LD with one another? (1pt)
+
+#?# 23. Do you think looking at the top two PCs for our Mini Cohort was enough to determine the ancestry of the samples? Why or why not? (3 pts)
+
+#?# 24. Examine the report generated by pgsc_calc. Also look at the aggregated_scores.txt.gz (remember to unzip the file!). Summarize the results for both patients with regards to both conditions. (3 pts)
+
+#?# 25. Can you say with certainty which patient is at higher risk for the disease analyzed in section 4, based on the PRSs? Why or why not? (1 pts)
+
+#?# 26. If we were to repeat our PRS analysis for 4 different complex traits, would we be able to tell which trait each patient is at higher risk for? Why or why not? (1 pts)
+
+
+
