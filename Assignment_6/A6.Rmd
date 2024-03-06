@@ -33,7 +33,7 @@ We will be using a few new tools in this assignment:
 
   1. `plink` is a tool for working with GWAS data. It is a command line tool, so you will need to use it from the terminal. You can find the documentation for `plink` [here](https://www.cog-genomics.org/plink/1.9/). `plink` can be installed from the bioconda channel using the command `conda install -c bioconda plink`.
 
-  2. `nextflow` is a tool for running workflows/pipelines. It is a command line tool, so you will need to use it from the terminal. You can find the documentation for `nextflow` [here](https://www.nextflow.io/). NOTE: Nextflow is already installed on the server and we will be using this version for the assignment. **Do not install Nextflow using conda**.
+  2. `nextflow` is a tool for running workflows/pipelines. It is a command line tool, so you will need to use it from the terminal. You can find the documentation for `nextflow` [here](https://www.nextflow.io/). NOTE: Nextflow is going to be installed through the conda environment installed through a yaml file located in the A6 directory. 
 
 ### Other notes:
 - As always you must cite any sources you use in your assignment (class slides are exempted). This includes any code you use from StackOverflow, ChatGPT, Github, etc. Failure to cite your sources will result in (at least) a zero on the assignment.
