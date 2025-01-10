@@ -1,0 +1,422 @@
+---
+title: BMEG 424 Assignment 0
+output:
+  github_document:
+    toc: true
+    toc_depth: 4
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# BMEG 424 Assignment 0: Introduction
+## Introduction:
+### General Information About Assignments
+Welcome to BMEG 424! We would like to begin by outlining some of the key rules and regulations you will have to follow for the assignments in this course:
+
+- All assignments are to be completed individually or with one partner
+  
+- If you choose to work in pairs for an assignment, **ONE** of you should make a submission on canvas. In the submission you **MUST** report the name & student number of BOTH partners. 
+
+- Each time you work with a new partner you will need to create a new GitHub repo for that assignment. You should share your repos with the @BMEGGenoInfo account on Github so TAs have access to your submission.
+
+- Late assignments will have 10% deducted for each day they are late and assignments will not be accepted >3 days late. Making changes to the files on your repo after the assignment has been submitted on Canvas will result in a late penalty unless an instructor has specifically asked you to change something.
+
+- Each student will have to ensure their assignment files are knit correctly (see below for instructions) and legible on GitHub. 20% or more of the assignment marks can be removed at the TA's discretion for incorrect knitting or formatting of assignment files.
+
+- We are aware that some of you will choose to use large language models like ChatGPT to complete some portions of the assignment. You are free to use ChatGPT or other LLMs to help you on the assignment, *provided you cite the model and a link to the conversation* (see below for further guidance)
+
+- More generally, it is a requirement that you include any and all sources from where you received help (excluding your previously mentioned partner) or information for completing any question on the assignments. If you are unsure of when/how to cite your sources (including LLMs), please get in contact with the instructors.
+  
+If any of these rules are unclear please get in contact with the instructors. 
+
+### The structure of the assignments in BMEG 424/524
+Assignments will be split up into 3 sections: Introduction, Experiment and Analysis, and Discussion. The introduction section is for the instructors to give you information and context for the assignment you are about to complete, there will never be any points assigned to this section but it is still essential that you read it carefully. The 'Experiment' and Analysis section is where you will be doing the bulk of your computational work. Much like your laboratory classes there will be a protocol for you to follow for the generation, processing and preparation of genomics data. Most of your marks in this section will come from sharing the code you used to complete the assigned tasks and/or the results you generated from data, but there may also be some thinking questions you need to answer. The final discussion section will contain questions about the theoretical underpinning of the topics covered in the assignment. 
+
+Everything in the assignments which are worth marks will be in the following format:
+
+
+```{bash,eval=FALSE}
+#?# 0. This is what a question looks like. (0 pts)
+
+You'd put your answer here
+
+```
+If you are not sure that your assignment is done simply search for #?# and make sure you've filled everything out.
+
+## Experiment and Analysis:
+### Part 1: Git, GitHub and Submitting your Assignments
+#### a. Setting up Git
+*NOTE*: There's a pretty good chance you already have git on your computer, you can check this on Mac by opening a terminal and typing `git --version` and on Windows by opening a command prompt and typing `git --version`. If you don't have git installed you can download the appropriate version of git at this link: https://git-scm.com/downloads. If you already have a version of git installed you can skip this step.
+
+You can download the appropriate version of git at this [link](https://git-scm.com/downloads). Once you have run the binary installer you will need to configure your username and email, you can do so by typing the following commands into your terminal:
+```{bash, eval=FALSE}
+
+git config --global user.name "John Doe"
+
+git config --global user.email johndoe@example.com
+
+``` 
+
+Once you have these set up you can see your configuration by typing `git config --list` into the terminal.
+```{bash, eval=FALSE}
+#?# 1. Paste the output of git config --list here (0 pts)
+# Note: This question, along with all the others in Assignment Zero, will not be graded. This assignment is here purely to get you up to speed. 
+
+```
+
+If you need more help setting up git you can take a look at the following [link](https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup). You can also ask the TAs for help if you are having trouble.
+
+#### b. Creating a repository on GitHub
+If you don't already have a GitHub account you can create one [here](https://github.com/). Once you have set up your account you can create a new repository by clicking the "+" in the top right corner of the GitHub page and selecting "New repository". You can name your repository whatever you like, but we recommend naming it something like "BMEG424_A0" so that it is clear which assignment the repository is for. You can also add a description if you like. You **must make your repository private**. 
+
+You will need to add the @BMEGGenoInfo account as a collaborator. You can do this by going to the settings tab of your repository and selecting "Manage access". **Please try to do this the day you submit the assignment**. The invitation links expire after three days and if you add the teaching team to your repo to early it may expire by the time we begin grading them.
+
+```{bash, eval=FALSE}
+#?# 2. Paste the URL of your GitHub repository here (0 pts)
+
+```
+
+
+#### c. Pulling, committing, and pushing changes
+Once you have created your git repository you will need to clone it to your computer. You can do this by typing `git clone <repository URL>` into the terminal. Where you clone it to on your machine is not that important, if needed you can copy and paste the entire folder to a different location on your computer later.
+
+Once you have cloned the repository to your computer, you can download this file (the button should be in the upper right of the page) and move it into the repository folder. 
+
+You can see the status of your repository by typing `git status` into the terminal. If you have made any changes you want git to keep track of in your folder, you can add the modified/added files by typing `git add <file name>` into the command line. You can add all the files in the folder by typing `git add .`.
+
+Once you have added the files you can commit the changes by typing `git commit -m "A message about the changes you made"` into the command line. It is best practice to make this message as descriptive as possible so that you can easily track changes you have made. 
+
+Once you have committed your changes you can push them to the repository by typing `git push` into the command line. 
+
+
+#### d. Collaborating on a repo with a partner
+If you are working on an assignment with a partner you will need to add them as a collaborator to your repository. You can do this as explained here[https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-access-to-your-personal-repositories/inviting-collaborators-to-a-personal-repository]. Once you've added them as a collaborator they will be able to clone the repository to their computer and make changes to the files.
+
+When you are working on the same files as your partner, you will need to be careful not to overwrite each other's changes. If you both make changes to the same file and try to push them to the repository you will get an error. You can avoid this by pulling the changes from the repository before you make your own changes. You can do this by typing `git pull` into the command line.
+
+Although it is not strictly necessary, it is a good idea for each partner to make their own branch of the repository. This will allow you to make changes to the files without affecting the main branch. You can create a new branch by typing `git checkout -b <branch name>` into the command line. After working on your branch you can use `git push origin <branch name>` to push the changes to the repository.
+
+```{bash, eval=FALSE}
+#?# 3. Create a working branch of your A0 directory. Paste the output of git branch here (0 pts)
+
+
+```
+
+Once you have made the changes to your files you can commit them to your branch and push them to the repository. If you are working on a branch you will need to specify the branch you are pushing to by typing `git push origin <branch name>` into the command line.
+
+Once you have completed your work on the branch you can merge the changes back into the main branch by creating a pull request. You can do this by going to the repository on GitHub and selecting the "Pull requests" tab. You can then select "New pull request" and select the branch you want to merge into the main branch. You can then add a title and description for the pull request and select "Create pull request".
+Your partner will then be able to review the changes you have made and merge them into the main branch. You should review the changes your partner has made carefully, and if you are happy with them you can merge them into the main branch.
+
+You can view a detailed set of instructions for managing branching and merging in git [here](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging).
+
+#### e. Submitting Assignments in Canvas
+The protocol to submit your assignments on Canvas is as follows:
+1. Each assignment will have it's own submission page on Canvas. You will need to submit your assignment on the appropriate page.
+   
+2. If you are working with a partner, only one of you needs to submit the assignment on Canvas. The format of the submission is:
+
+   ```
+    Partner 1: John Doe, 123456
+    Partner 2: Jane Doe, 654321
+    GitHub Repository: https://github.com/yourusername/BMEG424_A0
+   ``` 
+
+3. The link should be to the main page of your repository, not to a specific file or folder.
+
+4. You will need to create **a new** repository for each assignment. This is to minimize confusion for the TAs if you change partners between assignments.
+
+
+If you are having trouble submitting your assignment on Canvas please get in contact with the instructors.
+
+### Part 2: Working on the command line
+#### a. Getting set up on the server
+For our course we will be using a server based on a Docker/Linux system. This will be the place where you will do your assignments and project. There are several things that you need to be aware while working on the server:
+
+**The server has limited storage and computer power.** Therefore, you will be required to be mindful of the processes you run as well as the files you keep.
+In general, files that are uncompressed (e.g. fastq, sam) should either be compressed or deleted (more on that later) to ensure we don't run out of space. If we do run out of space, no one will be able to write new data to disk, which will halt all progress until space clears up.
+
+**If we find that we are running out of space on the server we may remove some marks from any students found to be hoarding data/space. If you are having trouble managing your files please contact one of the teaching staff.**
+
+  - **Windows system:** 
+      
+      a. Install a terminal emulator. We recommend git bash as it is a more user-friendly terminal emulator with scp capabilities (*https://git-scm.com/downloads*). Git bash would've been installed when you installed Git above. Another option is Putty (*https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html*).
+
+      b. This will allow you to do a SSH connection using the server's IP (orca1.bcgsc.ca) and your credentials. You can read the terminal emulators instructions for how to set up an SSH connection on your system & emulator.
+  
+  - **Linux/Unix system (Apple computer and Ubuntu):** 
+      
+      a. Open a terminal
+      
+      b. Type the following command: ssh username@orca1.bcgsc.ca 
+      
+      c. When prompted, type your password to complete the login 
+      
+Now that you have successfully joined the server, let's get you used to some basic commands.
+
+#### b. Basic commands
+**NOTE**: If you are already familiar with working on linux/unix based systems, then you may want to skip this section. 
+
+The command line is a powerful tool which allows you to interact a computer without a graphical user interface (GUI). The majority of bioinformatics tools/software are run through the command line rather than a GUI. Before you are able to use these software you will have to know how perform basic tasks on a computer without a GUI, such as moving around the file system, creating files and directories, and editing/moving files.
+
+The first thing you will need to know how to do is to move around the file system. In linux systems files are organized in directories (often called folders in Windows systems). The directories are organized in a tree, with the root directory being the top directory (denoted by "/"). As a user, you are always located in a single directory which is called your "working directory". 
+
+You can see what directory you are in by typing `pwd` into the command line. 
+
+```{bash, eval=FALSE}
+#?# 4. Paste the output of pwd here (0 pts)
+
+
+```
+Each of you has a home directory on the server. You can see the path to your home directory by typing `echo $HOME` or `echo ~` into the command line. 
+
+If you want to see the contents of your current directory you can type `ls` into the command line. Some files/directories will be hidden by default but can be seen by typing `ls -a`. 
+
+```{bash, eval=FALSE}
+#?# 5. Paste the output of ls -a here (0 pts)
+
+
+```
+You can create a directory by typing `mkdir <directory name>` into the command line. You can move into a directory by typing `cd <directory name>` into the command line. You can move up a directory by typing `cd ..` into the command line. 
+
+```{bash, eval=FALSE}
+#?# 6. Create a directory called "A0" and move into it. Paste the output of pwd here (0 pts)
+
+
+
+```
+
+```{bash, eval=FALSE}
+#?# 7. Type a command which will list the contents of the parent directory of your current working directory (0 pts)
+
+
+
+```
+#### c. Creating and moving files
+You can create a file by typing `touch <file name>` into the command line. Usually we denote file type by including a period followed by an extension at the end of the file name. For example, genomic sequencing data is often stored in the fastq file format, and therefore these sequence files are usually marked with *filename.fastq*. However, unlike on Windows systems the file extension doesn't actually do anything on linux systems, a fastq file named *filename.txt* is still a fastq file.
+
+You can copy a file to a new location by typing `cp <file name> <destination>` into the command line. You will have to include either a relative (path from current directory) or absolute (path starting from root directory) in front of the file name and destination if they are not in the working directory. You can delete a file by typing `rm <file name>` into the command line. 
+
+If you want to copy a file to a new location AND delete the original file in a single command you can type `mv <file name> <destination>` into the command line. 
+
+```{bash, eval=FALSE}
+#?# 8. Create a file in your A0 directory called test.txt. Paste the command you used to create the file here (0 pts)
+
+
+
+```
+
+You can view the contents of your file by typing `cat <file name>` into the command line. You can also edit the contents of the file by typing `vim <file name>` into the command line. Vim is a text editor which is available on most linux systems. You can type `i` to enter insert mode and type your text. Once you are done typing you can press `esc` to exit insert mode. You can save and exit the file by typing `:wq` into the command line. If you want to exit without saving you can type `:q!` into the command line.
+
+#### d. Moving files to/from the server
+In order to move files to/from the server you can use the scp command. The scp command is similar to the cp command but it allows you to move files between two different computers.
+
+To move a file from your computer to the server you can type `scp <file path> <username>@orca1.bcgsc.ca:<destination path>` into the command line. To move a file from the server to your computer you can type `scp <username>@orca1.bcgsc.ca:<file path> <destination path>` into the command line. 
+
+Note that to execute this command you must be working on the command line of your computer, not the server. This means if you are currently in an ssh session on the server you will have to exit the session to move files to/from the server, or open a new terminal window.
+
+```{bash, eval=FALSE}
+#?# 9. Move the file test.txt from your A0 directory to your home directory. Paste the command you used below (0 pts)
+
+
+
+```
+
+Another alternative to move files to/from the server is to use an SFTP client. This is a graphical interface which allows you to move files to/from the server by dragging and dropping them. Some popular SFTP clients are [Cyberduck](https://cyberduck.io/) and [WinSCP](https://winscp.net/eng/index.php). 
+
+If you need to download files from the internet (say a fastq sequencing file from NCBI) you can use the wget command. You can type `wget <url>` into the command line to download a file from the internet.
+
+### Part 3: Conda
+#### a. Installing Conda
+Conda is a package and environment manager (https://docs.conda.io/en/latest/). Conda is an excellent tool for managing computing environments.
+
+In your home directory use wget to download the following file: https://repo.anaconda.com/archive/Anaconda3-2022.10-Linux-x86_64.sh
+
+Run the Anaconda3-2021.11-Linux-x86_64.sh bash script you just downloaded. Say yes to any prompts you get. Finish your installation by logging out and back into the server.
+
+```{bash,eval=FALSE}
+#?# 10. Once you've logged back into the server, paste the output of conda --version here (0 pts)
+
+
+
+```
+#### b. Creating your first conda environment
+Conda environments are a great way to manage the software you use for different projects. You can create a new conda environment by typing `conda create -n <environment name> <list of packages>` into the command line. Usually you'll want to include python in your environment. 
+
+You'll want to keep a separate environment for each of your assignments so that software you install for one assignment doesn't interfere with software you install for another assignment. 
+
+```{bash, eval=FALSE}
+#?# 11. Create a directory to store your environments in your home directory. Initialize a conda environment *inside* that directory called test:
+8. Paste the commands you used below (0 pts)
+
+
+```
+Usually conda installs things in the ~/.conda directory. You are installing them in a different directory so that it's easy for the TA to find it if something goes wrong. 
+
+Now you'll want to activate your new environment. You can do so by typing `conda activate --prefix <path to environment>` into the command line. If you created your conda environment in the default directory simply using `-n <environment name>` will work.
+
+#### c. Installing software with conda
+The command to install software with conda is `conda install <list of packages>`. For today we will practice by installing fastqc (*https://www.bioinformatics.babraham.ac.uk/projects/fastqc/*) which is a tool for quality control of sequencing data that will be used in multiple assignments in this course.
+
+In order to install the tools we need for this course you will have to add two channels on top of the defaults channel that comes loaded with conda. You can do this by typing `conda config --add channels <channel name>` into the command line. The two channels you will need to add are bioconda and conda-forge. 
+
+```{bash, eval=FALSE}
+#?# 12. AFTER adding the appropriate channels type the command which will list all the channels you have added to conda (0 pts) and paste the output below. (0 pts)
+
+
+```
+
+You can install multiple tools at once by typing `conda install <list of packages>` into the command line. It's generally easier to install all the packages at once rather than one at a time, as this allows conda the most freedom to resolve any conflicts. You can also choose to install a package from a specific source by using the `-c` flag, for example `conda install -c bioconda fastqc`.
+
+```{bash, eval=FALSE}
+#?# 13. Install fastqc into your A0 environment using a single command. Paste the command you used below. (0 pts)
+
+
+```
+
+To delete a conda environment, and all packages installed therein, you can type `conda env remove --prefix <path to environment> -all` into the command line.
+
+```{bash, eval=FALSE}
+#?# 14. Delete the test environment you created earlier. Paste the command you used below. (0 pts)
+
+```
+
+#### d. Exporting/importing environments from YAML files
+Conda environments can be exported to a YAML file by typing `conda env export --prefix <path to environment> > <environment name>.yaml` into the command line. There is a test file called "A0_environment.yaml" located at the following path `/projects/bmeg/A0/A0_environment.yaml`. 
+
+You can import this environment into your conda environment by typing `conda env create --prefix <path to environment> -f <environment name>.yaml` into the command line.
+
+**NOTE**: The command to create this conda environment from file **is not** `conda create`, as usual, but instead `conda env create`.
+```{bash, eval=FALSE}
+#?# 15. Create a **new** A0 environment to a YAML file. Paste the command you used below. (0 pts)
+
+
+```
+
+```{bash, eval=FALSE}
+#?# 16. Activate your conda environment and paste the output of conda list here (0 pts)
+
+
+
+```
+
+### Part 4: Using text editors/IDEs
+#### a. Installing VS Code
+VS Code is powerful text editor that is popular among all fields of programming. Through the addition of various extensions VS Code has effectively become a full IDE.
+
+You can install Visual Studio Code (VS Code) by downloading the appropriate version for your operating system at this [link](https://code.visualstudio.com/). Once you have downloaded the installer you can run it to install VS Code on your computer.
+
+Once you have installed VS Code, you can open it by navigating to a directory (in the terminal) and typing `code .`. This will open the current directory as a project in VS Code. If you'd like to use a conda environment inside your VS Code session, ensure you activate it before typing `code .` into the terminal.
+
+```
+#?# 17. Navigate to your A0 repository and open it in VS Code. Take a screengrab of the VS Code window and insert it below. (0 pts)
+N.B. If you're not sure how to add a screenshot to an Rmd file, see section 4g below.
+```
+*INSERT HERE*
+
+#### b. Working on the server in VS Code
+*NOTE*: Some of the more programming-savy among you may be tempted to use remote tunneling to work on the course server in VS Code. We ask that you not do this. The server is a shared resource and we don't want to clutter it up with potentially dozens of VS Code instances running at once. You can use the terminal in VS Code to interface with the server as explained below.
+
+You can also use VS Code to work on the server. Once you've opened your repository in VS Code you can press ctrl+backtick to open the terminal. By default on Windows this will be a powershell terminal but you can open a Git Bash terminal by pressing the dropdown arrow in the terminal panel and selecting Git Bash. On mac, the default terminal should work fine.
+
+Once you have the terminal open you can type `ssh <username>@orca1.bcgsc.ca` into the terminal to connect to the server. You can then navigate to your working directory and run any commands you need to. This way you can read/modify your local Rmd file for the current assignment on your local machine, and run any commands (installing software, running scripts or command line tools) on the server in the same window. 
+
+You can also use the terminal in VS Code to move files to/from the server using the scp command. There is also the option to open multiple terminals simultaneously (one on the server and one on your local machine) by clicking the plus sign in the terminal window.
+
+```{bash, eval=FALSE}
+#?# 18. There is a script in the /projects/bmeg/A0 directory called "A0_script.sh". Copy this script to your local machine, open it in VS Code and fix the spelling error/typo inside. Move the script back onto the server and run it. Paste the output of the script here. (0 pts)
+Note: You may need to use the chmod command (https://linux.die.net/man/1/chmod) to make the script executable.
+
+
+```
+
+*NOTE*: Technically there's no reason why you *have* to use VS Code instead of opening a terminal directly. We think VS Code will make your life easier when you are editing complex shell scripts for pipelines in future assignments, instead of using a basic text editor like vim or nano. 
+
+#### c. Useful VS Code extensions for Genome Informatics
+Below are some extensions for VS Code which you may find useful for this course:
+- **Remote - SSH**: This extension allows you to connect to a remote server through SSH. This is useful for working on the server in VS Code.
+
+- **R**: (See section 4h for more information) This extension provides support for R scripts and R Markdown files in VS Code. We recommend you use R Studio instead, but this is an option if you prefer VS Code.
+
+- **Python**: This extension provides support for Python scripts in VS Code. We will only use Python briefly in A5 but you may find this extension useful for other courses or projects.
+
+- **Jupyter**: Similar to above; we will only use Jupyter notebooks in A5 but you may find this extension useful for other courses or projects.
+
+- **shell-format**: This extension helps with formatting shell scripts in VS Code. This can be useful for making your scripts more readable.
+
+- **Snakemake Language**: We will be using snakemake pipelines in A1 and A2, and we recommend you continue to use them throughout the course. This extension provides syntax and error highlighting for snakemake files.
+
+- **Code Spell Checker**: This can be useful for catching spelling errors in your scripts and markdown files. It's a bit annoying to have it on all the time so you may want to turn it off when you're not using it.
+
+- **Rainbow CSV**: Many of the file formats used in bioinformatics are tabular (e.g. csv, tsv, etc.). This extension provides color coding for csv files which can make them easier to read.
+
+#### e. Installing R and R Studio
+*NOTE*: Before proceeding please make sure you don't already hae a version R installed on your computer. You can check this by typing `R --version` into the terminal. If you already have R installed you can skip this step (unless your R version is <4.0.0, in which case you should make sure to update to a newer version).
+
+You can install R by downloading the appropriate version for your operating system at this [link](https://cloud.r-project.org/). Once you have downloaded the installer you can run it to install R on your computer.
+
+You can install R Studio Desktop for your OS at this [link](https://posit.co/download/rstudio-desktop). Once you have downloaded and run the installer, you can open R Studio by searching for it in your applications.
+
+More information on working in R Studio can be found [here](https://docs.posit.co/ide/user/). 
+
+#### f. Working with R in R Studio
+You should begin by creating an R project from your A0 git repository (which is located on your local machine) in R Studio. You can do this by opening R Studio and selecting "File" -> "New Project" -> "Existing Directory" and selecting the directory of your A0 repository. This will create an R project in R Studio which will allow you to easily access the files in your repository.
+
+You can install packages in R Studio by typing `install.packages("<package name>")` into the R console. You can also install packages by clicking on the "Packages" tab in the bottom right panel of R Studio and selecting "Install".
+
+#?# 19. Install the following packages in R Studio: ggplot2, dplyr, and tidyr. Paste the commands you used below. (0 pts)
+```{r}
+
+```
+
+#?# 20. Load the ggplot2 package in R Studio. Paste the command you used below. (0 pts)
+```{r}
+
+```
+
+#?# 21. Create a bar chart of the dinucleotide content created by the script you ran in section 4c. Paste the code you used below. (0 pts)
+```{r}
+
+```
+
+
+#### d. Connecting your GitHub repository to VS Code/R Studio
+Both R Studio and VS Code should automatically detect your git installation. In R Studio you can see the git tab in the top right panel. In VS Code you can see the source control tab in the left panel. You can use these tabs to commit changes to your repository. More information can be found for R Studio [here](https://docs.rstudio.com/rscm/) and for VS Code [here](https://code.visualstudio.com/docs/editor/versioncontrol).
+
+#### f. Reproducibility in R
+Sometimes you will need to run older code which you haven't looked at in a while, and installing the same packages you used before can be a pain. The renv package is a great way to manage the packages you use in R. You can install the renv package by typing `install.packages("renv")` into the R console. You can then initialize a new renv environment by typing `renv::init()` into the R console. This will create a new renv.lock file in your project directory which will keep track of the packages you use in your project. You can then restore the packages you used in a project by typing `renv::restore()` into the R console.
+
+Renv environments are generated by running `renv::init()` in the R console. This will create a new renv.lock file in your project directory which will keep track of the packages you use in your project. You can then restore the packages you used in a project by typing `renv::restore()` into the R console.
+
+#### g. Using R Markdown
+The file you are currently reading is a rendered Rmd file! Rmd is short for R Markdown, which is a way to combine R code and text in a single document. You can create a new R Markdown file in R Studio by selecting "File" -> "New File" -> "R Markdown". This will open a new R Markdown file where you can write text and R code. You can run the R code by clicking the "Knit" button at the top of the file. This will render the R Markdown file into an HTML, PDF, or Word document.
+
+The header at the top of this file is written in YAML, which is a way to specify metadata for the R Markdown file. The YAML header for this file is as follows:
+```{yaml, eval=FALSE}
+title: BMEG 424 Assignment 0
+output:
+  github_document:
+    toc: true
+    toc_depth: 4
+```
+
+The most common error students make when knitting R Markdown files is that they do not set the output format to github_document. If you export your file to a HTML or PDF, the TAs will not be able to view the rendered version properly on github. This will result in a loss of marks.
+
+You can add images to an R Markdown file by saving the image in the same directory as the R Markdown file and using the following text: `![](imagename.png)`. You should not put this into a code block, but rather into the text of the R Markdown file.
+
+Once you have finished all the questions in this assignment, you can knit the R Markdown file to a github document and then use R Studio to push it to you A0 repo. You should then go to github and check to ensure everything has rendered properly.
+
+#### h. Working with R in VS Code
+Because R Studio is natively built for R, it is the preferred IDE for R coding in this course. However, if you are more comfortable with VS Code, you can use it for R as well.
+
+If you want to use R in VS Code you will need to install the R extension. *Before you do this, make sure to install the R language and R language server on your computer*. The R language server package can be installed with:
+
+```{R, eval=FALSE}
+install.packages("languageserver")
+```
+You can do then install the R extension for VS Code by clicking on the extensions icon and searching for "R". You can then click on the R extension and select "install". This provides functionality for working with both R Scripts and Rmd files in VS Code. 
+
+You can run R commands in VS Code by opening an R terminal in the bottom panel (as you did with the terminal in the previous section).
+
+# Contributions
+Please note here the team members and their contributions to this assignment.
