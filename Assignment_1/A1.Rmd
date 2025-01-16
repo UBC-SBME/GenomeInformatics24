@@ -151,7 +151,7 @@ rule bcftools_call:
     output:
     shell:
         "samtools mpileup -uf {input.genome} {input.bam} | "
-        "bcftools call -Ov -o {output}"
+        "bcftools call -mv -Ov -o {output}"
 
 
 ```
