@@ -104,7 +104,8 @@ configfile: "config.yaml" # This is located with the data files, you'll need to 
 
 rule all:
     input:
-        expand("fastqc/{sample}_fastqc.html", sample=config['samples']),
+        expand("fastqc/{sample}_1_fastqc.html", sample=config['samples']),
+        expand("fastqc/{sample}_2_fastqc.html",sample=config['samples']),
         expand("aligned/{sample}.sam", sample=config['samples']),
         expand("sorted/{sample}.bam", sample=config['samples']),
         expand("sorted/{sample}.bam.bai", sample=config['samples']),
@@ -115,7 +116,8 @@ rule fastqc:
         "/path/to/data/{sample}_1.fastq.gz",
         "/path/to/data/{sample}_2.fastq.gz"
     output:
-        "fastqc/{sample}_fastqc.html"
+        "fastqc/{sample}_1_fastqc.html",
+        "fastqc/{sample}_2_fastqc.html"
     shell:
         "fastqc {input} --outdir fastqc"
 
@@ -148,7 +150,7 @@ rule bcftools_call:
         bai=
     output:
     shell:
-        "samtools mpileup -uf {input.genome} {input} | "
+        "samtools mpileup -uf {input.genome} {input.bam} | "
         "bcftools call -Ov -o {output}"
 
 
