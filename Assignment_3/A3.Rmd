@@ -5,11 +5,30 @@ output:
     toc: true
     toc_depth: 4
 ---
-```{r setup, incldue=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 # BMEG 424 Assignment 3: ChIP-seq
 ## Introduction:
+### General Information About Assignments
+We would like to begin by reminding you of some of the key rules and regulations you will have to follow for the assignments in this course:
+
+- All assignments are to be completed individually or with one partner
+  
+- If you choose to work in pairs for an assignment, **ONE** of you should make a submission on canvas. In the submission you **MUST** report the name & student number of BOTH partners. 
+
+- Each time you work with a new partner you will need to create a new GitHub repo for that assignment. You should share your repos with the @BMEGGenoInfo account on Github so TAs have access to your submission.
+
+- Late assignments will have 10% deducted for each day they are late and assignments will not be accepted >3 days late. Making changes to the files on your repo after the assignment has been submitted on Canvas will result in a late penalty unless an instructor has specifically asked you to change something.
+
+- Each student will have to ensure their assignment files are knit correctly (see below for instructions) and legible on GitHub. 20% or more of the assignment marks can be removed at the TA's discretion for incorrect knitting or formatting of assignment files.
+
+- We are aware that some of you will choose to use large language models like ChatGPT to complete some portions of the assignment. You are free to use ChatGPT or other LLMs to help you on the assignment, *provided you cite the model and a link to the conversation* (see [here](https://help.openai.com/en/articles/7925741-chatgpt-shared-links-faq) for how to do this with ChatGPT)
+
+- More generally, it is a requirement that you include any and all sources from where you received help (excluding your previously mentioned partner) or information for completing any question on the assignments. If you are unsure of when/how to cite your sources (including LLMs), please get in contact with the instructors.
+  
+If any of these rules are unclear please get in contact with the instructors.
+
 ### Goals and Objectives
 The aim of this assignment is to familiarize you with the processing and analysis of ChIP-seq data. You worked on processing and aligning ChIP-seq data in the previous assignment but you might be a little confused about what to do after the alignment.
 This assignment's main aim is to walk you through a ChIP-seq pipeline **post-alignment**. You will be analyzing 3 different histone modification marks (H3K27me3, H3K4me3 and H3K27ac). In order to identify the enrichments for each epigenetic mark, we also need to use the *input* which represents the DNA content of the sheared chromatin sample prior to immunoprecipitation. 
@@ -25,7 +44,7 @@ All the files can be found under the following path: **/projects/bmeg/A3/** . Th
   
   - input (input_chr3_subset.bam)
 
-Unfortunately for you, as you can see from the file names (other than input_chr3_subset.bam) the sequencing center has mixed up your samples, they are labelled Sample_1, Sample_2 and Sample_3. As part of this assignment you will work on identifying which sample corresponds to which epigenetic mark is which by analyzing the files.
+Unfortunately for you, as you can see from the file names (other than input_chr3_subset.bam) the sequencing center has mixed up your samples, they are labelled Sample_2, Sample_4 and Sample_6. As part of this assignment you will work on identifying which sample corresponds to which epigenetic mark is which by analyzing the files.
 
 ### Software and tools
 We will be using a couple of new tools this time. Before we move on to the practical part, make sure you have them all installed. 
@@ -38,9 +57,7 @@ We will be using a couple of new tools this time. Before we move on to the pract
 
 ### Other notes:
 
-- As always you must cite any sources you use in your assignment (class slides are exempted). This includes any code you use from StackOverflow, ChatGPT, Github, etc. Failure to cite your sources will result in (at least) a zero on the assignment.
-
-- When you begin your assignment do not copy the data from `/projects/bmeg/A3/` to your home directory. You can use the files in the projects folder without modifying them. Remember to output any files you create in your home directory *and not in the projects directory*. You should gzip files while you are working on the assignment and remember to delete files you no long need. If you take up too much space in your home directory you will not be able to save your work and will prevent others from doing the same, you will also make TA Omar very unhappy :(
+- When you begin your assignment do not copy the data from `/projects/bmeg/A3/` to your home directory. You can use the files in the projects folder without modifying them. Remember to output any files you create in your home directory *and not in the projects directory*. You should gzip files while you are working on the assignment and remember to delete files you no long need. If you take up too much space in your home directory you will not be able to save your work and will prevent others from doing the same, you will also make the TAs very sad.
   
 ### Submission:
 Submit your assignment as a knitted RMarkdown document. *Remember to specify the output as github_document* You will push your knitted RMarkdown document to your github repository (one for each group). Double check that all files (including figures) necessary for your document to render properly are uploaded to your repository. 
@@ -75,13 +92,13 @@ Navigate to the following region: `chr3:93,432,899-93,508,213` and take a screen
 ![]()
 
 ```
-#?# 3. What do you see? Is there anything peculiar about the signals at this locus? Explain what you think is causing the effect you see and how you could confirm your hypothesis (1.5pts) 
+#?# 3. What do you see? Is there anything peculiar about the signals at this locus? Explain what you think is causing the effect you see and how you could confirm your hypothesis (2pts) 
 # HINT: Sometimes track signal will be truncated to a pre-set maximum. If you right-click the track label (left) and select "autoscale", it will automatically adust the scales of the track to the range of your data. Try playing around with the track settings to see their effect.
 
 ```
-For your convience we normalized bigWig track files for each of the histone modifications using the input. These files are located in the directory `/projects/bmeg/A3/bigWig_norm`. We are going to use these normalized bigWig files for most of our further analysis.
+For your convenience we normalized bigWig track files for each of the histone modifications using the input. These files are located in the directory `/projects/bmeg/A3/bigWig_norm`. We are going to use these normalized bigWig files for most of our further analysis.
 
-While exploring the bigwig files of the epigenetic marks on IGV, you probably noticed that they can look very different from each other and some of them ressemble the input more closely than others. Different epigenetic marks can have very different signatures based on their distribution patterns across the genome.
+While exploring the bigwig files of the epigenetic marks on IGV, you probably noticed that they can look very different from each other and some of them resemble the input more closely than others. Different epigenetic marks can have very different signatures based on their distribution patterns across the genome.
 
 ChIP-seq reads cluster together in high density regions called peaks. These peaks peaks can look different depending on what sort of protein you are pulling down in your experiment. Certain well-characterized epigentic marks are broadly classified as either active or repressive marks and we can differentiate them by visualizing their peaks. 
 
@@ -99,19 +116,19 @@ Specifically, we will use the genes located in the `reference_genes.bed` file wh
 Write the command you used to run it below (1 pts)
 ```
 
-Now that the scores matrix has been computed we can use it to create a heatmap to visualize the distribution of reads at our reference genes. We will use the deepTools ** plotHeatmap ** function to create a heatmap following this criteria: 
+Now that the scores matrix has been computed we can use it to create a heatmap to visualize the distribution of reads at our reference genes. We will use the deepTools **plotHeatmap** function to create a heatmap following this criteria: 
 ```{bash, eval=FALSE}
 #?# 5. Use the deepTools ** plotHeatmap ** function to create a heatmap following this criteria (1 pts) 
 - Use the matrix from the previous point
-- Use the Blues colormap
-- Create 3 clusters within the heatmap according to the patterns of the reads distrubution across the files using heirarchical clustering
+- Use the Blues colourmap
+- Create 3 clusters within the heatmap according to the patterns of the reads distribution across the files using hierarchical clustering
 
 
 ```
-```
+
 #?# 6. Explain what you are looking at (Axes, colours, curves) (1 pts)
 
-#?# 7. Is this plot helpful for distinguishing between the different epigenetic marks? Why or why not? (1 pts)
+#?# 7. Is this plot helpful for distinguishing between the different epigenetic marks? Why or why not? (1.5 pts)
 
 #?# 8. Include the plot produced by plotHeatmap below using Rmarkdown syntax (0.5 pts)
 
@@ -156,7 +173,7 @@ Next you'll want to create the heatmaps using the matrices you just created. You
 
 ```
 ```
-#?# 13. Add screenshots of the 3 heatmaps you got using the epigenetic marks' peak files as reference files. Add them after this code chunk in the following order: Sample_1, Sample_2, Sample_3 (the plot where Sample_1 was used as the reference file is the Sample_1 plot.) (0.75 pts)
+#?# 13. Add screenshots of the 3 heatmaps you got using the epigenetic marks' peak files as reference files. Add them after this code chunk in the following order: sample_2, sample_4, sample_6 (the plot where sample_2 was used as the reference file is the sample_2 plot.) (0.75 pts)
 ```
 **Add screenshot here:**
 ![]()
@@ -169,8 +186,10 @@ Next you'll want to create the heatmaps using the matrices you just created. You
 #?# 15. Why do you think these epigenetic marks overlap? (2 pt)
 
 
-# Discussion (6 pts)
+# Discussion (7 pts)
 #?# 16. Based on the sum of your analyses which file do you believe is the H3K27me3 sample? Why? (1 pts)
 
 #?# 17. Can you distinguish between the H3K4me3 and H3K27ac samples from the analyses you did above? (1 pt)
 If yes, how can you tell? If not, describe (in detail) the analysis you would perform on the files to determine which is which. Remember to cite your sources (4 pts).
+
+#?# 18. For this analysis we used sheared DNA as the input/control. If we were targeting a more specific binding protein (ex. a Transcription Factor) would this still be an appropriate control? Why or why not? (1 pt)
