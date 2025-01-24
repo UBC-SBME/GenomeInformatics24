@@ -80,7 +80,7 @@ colnames(atacSeqData) <- gsub("N", "BRM014", colnames(atacSeqData))
 colnames(atacSeqData) <- gsub("BI_protac", "BI-protac", colnames(atacSeqData))
 ```
 
-As you can see, the data are currently stored in "wide" format, where each column represents a different experiment. While this format is pretty intuitive for humans to read, it is not ideal for analysis. We will want to convert our data to "tidy" format where each row represents an individual observation (currently a single row in our data represents 24 different data points/observations). Our data will become much "longer" as we will have 24 rows for each row in our current data frame. After reshaping our current data frame, we will have 56617*24 = 1,358,008 rows and 5 columns. The data should look something like this:
+As you can see, the data are currently stored in "wide" format, where each column represents a different experiment. While this format is pretty intuitive for humans to read, it is not ideal for analysis. We will want to convert our data to "tidy" format where each row represents an individual observation (currently a single row in our data represents 24 different data points/observations). Our data will become much "longer" as we will have 24 rows for each row in our current data frame. After reshaping our current data frame, we will have 56617*24 = 1,358,808 rows and 5 columns. The data should look something like this:
 
 ```{bash, eval=FALSE}
 region,replicate,timepoint,treatment,read_count

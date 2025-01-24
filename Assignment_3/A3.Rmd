@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ### General Information About Assignments
 We would like to begin by reminding you of some of the key rules and regulations you will have to follow for the assignments in this course:
 
+
 - All assignments are to be completed individually or with one partner
   
 - If you choose to work in pairs for an assignment, **ONE** of you should make a submission on canvas. In the submission you **MUST** report the name & student number of BOTH partners. 
