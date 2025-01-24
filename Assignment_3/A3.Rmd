@@ -194,3 +194,7 @@ Next you'll want to create the heatmaps using the matrices you just created. You
 If yes, how can you tell? If not, describe (in detail) the analysis you would perform on the files to determine which is which. Remember to cite your sources (4 pts).
 
 #?# 18. For this analysis we used sheared DNA as the input/control. If we were targeting a more specific binding protein (ex. a Transcription Factor) would this still be an appropriate control? Why or why not? (1 pt)
+
+# Contributions
+
+Please note here the team members and their contributions to this assignment.

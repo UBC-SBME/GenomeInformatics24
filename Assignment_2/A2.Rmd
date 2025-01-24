@@ -1,0 +1,490 @@
+---
+title: "BMEG 424/524 Assignment 2"
+author: "FirstName LastName (student#)"
+output:
+  github_document:
+    toc: true
+    toc_depth: 4
+---
+
+```{r setup, incldue=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# BMEG 424 Assignment 2: Mappability
+
+## Introduction:
+
+### Software and Tools:
+
+In this assignment we will be using the following tools: - [bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml) - [samtools](http://www.htslib.org/doc/samtools.html) - [sambamba](http://lomereiter.github.io/sambamba/docs/sambamba-view.html) - [trimmomatic](http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf) - [liftover](https://genome.ucsc.edu/cgi-bin/hgLiftOver) - [bedtools](https://bedtools.readthedocs.io/en/latest/) - [conda](https://conda.io/docs/) - [snakemake](https://snakemake.readthedocs.io/en/stable/)
+
+### Data:
+
+Your data is located in the following directory: `/projects/bmeg/A2/`. You have been provided with 2 fastq files (forward and reverse reads) named `H3K27me3_iPSC_SRA60_subset_<1/2>.fastq.gz` These files contain a subset of the reads from a H3K27me3 ChIP-seq experiment performed on human iPSCs. Don't worry about what ChIP-seq experiments are or what they measure, that will be the topic of next weeks assignment.
+
+### Goals and Objectives:
+
+In this assignment you will be using the concepts you learned in class to investigate the effect of various factors on mappability. You will be using the snakemake workflow management system to create a modular mapping pipeline. You will then use this pipeline to test the effect of read length, reference genome, and alignment mode on mappability. Finally, you will analyze the results of your experiments and discuss your findings.
+
+### Other notes:
+
+-   As always you must cite any sources you use in your assignment (class slides are exempted). This includes any code you use from StackOverflow, ChatGPT, Github, etc. Failure to cite your sources will result in (at least) a zero on the assignment.
+-   You are going to be using another snakemake pipeline, please ensure you are limiting snakemake to a single core and less than 4GB of memory. You can do this by adding the following to your snakemake command: `--cores 1 --resources mem_mb=4000`
+-   You will be reusing several of the same tools between A1 and A2. To save time you can clone your A1 conda environment (<https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#cloning-an-environment>) and install the additional tools you need for this assignment into your A2 env. Check if you have the tools installed by using `conda list` or simply typing the tool in the command line after your environment is activated.
+-   Remember to gzip any large files you produce working and delete them when you are done with the assignment. If you take up too much space in your home directory you will not be able to save your work and will prevent others from doing the same, you will also make your TAs very unhappy :(
+
+### Submission:
+
+Submit your assignment as a knitted RMarkdown document. You will push your knitted RMarkdown document to your github repository (one for each group). You will then submit the link to your repo, along with the names and student numbers of all students who worked on the assignment to the assignment 2 page on Canvas. Your assignment should be submitted, and your last commit should be made, before 11:59pm on the day of the deadline. Late assignments will will be deducted 10% per day late. Assignments will not be accepted after 3 days past the deadline.
+
+## Experiment and Analysis:
+
+### 1. Creating a modular mapping pipeline (7 pts)
+
+**A snakemake file is provided in Part 2. Simply update the shell portions which you will complete below.** If you are stuck on running snakemake, simply execute the commands individually in the terminal manually and proceed to perform your analysis in Part 3 and Discussion questions.
+
+### a. Building the basic rules
+
+Our mapping rule will be similar to the rule you used in the last assignment for mapping reads to the genome using bowtie2. For your convenience, a correct single-ended mapping rule has been provided below. Reference it as necessary in the rules you write.
+
+```{python, eval=FALSE}
+rule align:
+    input:
+        fastq = "path/to/data/{sample}.fastq.gz",
+    output:
+        sam = "aligned/{sample}.sam"
+    shell:
+        "bowtie2 -x /projects/bmeg/indexes/hg38/hg38_bowtie2_index "
+        "-U {input.fastq} -S {output.sam}"
+```
+
+We'll also have to convert the aligned sam files to bam format (binary sam). As before you can do this using samtools. You can install samtools into your A2 conda environment with `conda install -c bioconda samtools`. The samtools manual can be found [here](http://www.htslib.org/doc/samtools.html). For your convenience, a correct conversion rule has been provided below:
+
+```{python, eval=FALSE}
+rule sam_to_bam:
+    input:
+        sam = "aligned/{sample}.sam"
+    output: 
+        bam = "aligned/{sample}.bam"
+    shell:
+        "samtools view -h -S -b -o {output.bam} {input.sam}"
+```
+
+We will also need a rule that will count the number of uniquely mapped reads in our sam file generated by bowtie2. In order to do this we will use a useful multipart tool called sambamba. Sambamba is a tool for working with sam and bam files. You can install sambamba into your A2 conda environment with `conda install -c bioconda sambamba`. The sambamba manual can be found [here](http://lomereiter.github.io/sambamba/docs/sambamba-view.html).
+
+```{python, eval=FALSE}
+#?# 1. Fill in (where it says <complete command>) the following rule which will count the number of uniquely mapped reads in a sam file. (0.5 pts)
+
+rule count_unique_reads:
+    input:
+        bam = "aligned/{sample}_CROP{length}_{genome}_{mode}.bam"
+    output:
+        counts = "counts/{sample}_CROP{length}_{genome}_{mode}_nReads.txt"
+    shell:
+        "sambamba view <complete command>"
+        "\"[XS] == null and not unmapped and <complete command>\" {input.bam} > {output.counts}"
+```
+
+### b. Read length
+
+The first factor affecting mappability which we will test in this assignment is read length. In order to test this variable we will have to trim our reads to different lengths before aligning them. We will use the trimmomatic tool to trim our reads. You can install trimmmomatic into your A2 conda environment with `conda install -c bioconda trimmomatic`.
+
+We will want to use the SE option for single end reads. The trimmomatic manual can be found [here](http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf).
+
+```{python, eval=FALSE}
+#?# 2. Fill in the rule (where it says <complete command>) such that you can dynamically trim reads to different lengths BEFORE mapping. (1 pts)
+
+rule trim_reads_single:
+    input:
+        read_1 = "/projects/bmeg/A2/{sample}_1.fastq.gz",
+    output:
+        read_1 = "trimmed/{sample}_CROP{length}_1.fastq.gz",
+    shell:
+        """
+        <complete command>
+        """
+
+rule trim_reads_paired:
+    input:
+        read_1 = "/projects/bmeg/A2/{sample}_1.fastq.gz",
+        read_2 = "/projects/bmeg/A2/{sample}_2.fastq.gz"
+    output:
+        read_1 = "trimmed/{sample}_CROP{length}_1.fastq.gz",
+        read_2 = "trimmed/{sample}_CROP{length}_2.fastq.gz"
+    shell:  # simply use the trim reads commands twice
+        """
+        <complete command>
+        <complete command>
+        """
+```
+
+### c. Reference genome
+
+Next we will see if mapping to different reference genomes affects mappability. We will use both the hg19 and hg38 reference genomes. Both genomes are available, indexed, at `/projects/bmeg/genomes/<genome>/indexes/`
+
+To compare reads mapped to different genomes we will need to use the ucsc-liftover tool to convert the hg19 coordinates to hg38 coordinates. You can install the liftover tool into your A2 conda environment with `conda install ucsc-liftover`. You will also need to use `/projects/bmeg/A2/hg19ToHg38.over.chain.gz` for conversion of hg19 to hg38 coordinates.
+
+```{python, eval=FALSE}
+#?# 3. Complete the following rules' shell portion to dynamically map reads to different reference genomes. All resulting alignments should have hg38 coordinates irrespective of which genome was used. (1 pts)
+
+rule align_single: 
+    input:
+        fastq1 = "trimmed/{sample}_CROP{length}_1.fastq.gz",
+    output:
+        sam = "aligned/{sample}_CROP{length}_{genome}_{mode}.sam"
+    params:
+        genome = config["genome"]
+    shell:
+        """
+        if [ {params.genome} == "hg19" ]; then
+            <complete command>
+        elif [ {params.genome} == "hg38" ]; then
+            <complete command>
+        else
+            echo "Invalid genome"
+        fi
+        """
+
+rule bam_to_bed:
+    input:
+        bam = "aligned/{sample}_CROP{length}_{genome}_{mode}.bam"
+    output:
+        bed = "bed/{sample}_CROP{length}_{genome}_{mode}.bed"
+    shell:
+        "<complete command>"
+
+rule liftover:
+    input:
+        bed = "bed/{sample}_CROP{length}_{genome}_{mode}.bed", 
+        chain = "/projects/bmeg/A2/hg19ToHg38.over.chain.gz"
+    output:
+        bed = "bed/{sample}_CROP{length}_{genome}_{mode}_lifted_hg38.bed",
+        unlifted = "bed/{sample}_CROP{length}_{genome}_{mode}_unlifted.bed",
+        confirmation = "aligned/lifted_over_{sample}_CROP{length}_{genome}_{mode}.done"
+    params:
+        genome = config["genome"]
+    shell:
+        """
+        if [ {params.genome} == "hg19" ]; then
+            <complete command>
+            touch {output.confirmation}
+        elif [ {params.genome} == "hg38" ]; then
+            echo "No need to lift over"
+        else
+            echo "Invalid mode"
+        fi
+        """
+
+```
+
+### d. Paired vs. Single End Alignment
+
+The files you have been using so far have been single end reads. However, paired end reads are also commonly used in sequencing. In paired end sequencing, the same DNA fragment is sequenced from both ends. This allows us to get information about the distance between the two ends of the fragment. This information can be used to improve the accuracy of the alignment.
+
+```{python, eval=FALSE}
+#?# 4. Update the rule from Part a. to do paired-end alignment. (1 pts)
+
+rule align_paired:
+    input:
+        fastq1 = "trimmed/{sample}_CROP{length}_1.fastq.gz",
+        fastq2 = "trimmed/{sample}_CROP{length}_2.fastq.gz",
+    output:
+        sam = "aligned/{sample}_CROP{length}_{genome}_{mode}.sam"
+    params:
+        genome = config["genome"]
+    shell:
+        """
+        if [ {params.genome} == "hg19" ]; then
+            <complete command>
+        elif [ {params.genome} == "hg38" ]; then
+            <complete command>
+        else
+            echo "Invalid mode"
+        fi
+        """
+
+```
+
+### 2. Testing factors affecting mappability (4.5 pts)
+
+In order to keep track of the experiments we are running we should modify our pipeline to use a config file. This will allow us to easily change the parameters of our pipeline without having to modify the pipeline itself.
+
+```{python, eval=FALSE}
+#?# 5. Create a config file which will allow you to easily change the parameters of your pipeline. Paste the file (without parameter values) below. (0.5 pts)
+
+# config.yaml
+legnth:
+genome:
+mode:
+
+```
+
+Now we are going to run our pipeline with different parameters in order to test the effect of the various factors on mappability. Use the following parameters:
+
+```         
+Length: 50, 100, 150
+    While testing length, use only the hg38 genome and single end mode (on read 1)
+Genome: hg19, hg38
+    While testing genome, use only the 50bp read length and single end mode (on read 1)
+Alignment mode: paired, single
+    While testing alignment mode, use only the 50bp read length and hg38 genome.
+```
+
+```{python, eval=FALSE}
+#?# 6. Paste your complete snakefile and include a visualization of the DAG below (include the settings on your config file as part of the filename for the DAG image). (3 pts)
+# snakemake --dag | dot -Tsvg > dag.svg
+# HINT: You'll want to look at the ruleorder directive in the snakemake documentation.
+#Snakefile
+
+#Snakefile
+configfile: "config.yaml"
+LENGTH = config["length"]
+GENOME = config["genome"]
+MODE = config["mode"]
+
+SAMPLES = ["H3K27me3_iPSC_SRA60_subset"]
+
+rule all:
+    input:
+        expand("bed/{sample}_CROP{length}_{genome}_{mode}.bed", length = LENGTH, genome = GENOME, mode = MODE, sample = SAMPLES),
+        expand("counts/{sample}_CROP{length}_{genome}_{mode}_nReads.txt",length = LENGTH, genome = GENOME, mode = MODE, sample = SAMPLES),
+        expand("aligned/lifted_over_{sample}_CROP{length}_hg19_{mode}.done", length = LENGTH, genome = GENOME, mode = MODE, sample = SAMPLES) if GENOME == "hg19" else []
+
+if MODE=="single":
+    ruleorder: trim_reads_single > trim_reads_paired
+    ruleorder: align_single > align_paired
+elif MODE=="paired":
+    ruleorder: trim_reads_paired > trim_reads_single
+    ruleorder: align_paired > align_single
+else:
+    print("Invalid mode")
+    exit(1)
+
+rule trim_reads_single:
+    input:
+        read_1 = "/projects/bmeg/A2/{sample}_1.fastq.gz",
+    output:
+        read_1 = "trimmed/{sample}_CROP{length}_1.fastq.gz",
+    shell:
+        """
+        <complete command>
+        """
+
+rule trim_reads_paired:
+    input:
+        read_1 = "/projects/bmeg/A2/{sample}_1.fastq.gz",
+        read_2 = "/projects/bmeg/A2/{sample}_2.fastq.gz"
+    output:
+        read_1 = "trimmed/{sample}_CROP{length}_1.fastq.gz",
+        read_2 = "trimmed/{sample}_CROP{length}_2.fastq.gz"
+    shell:  # simply use the trim reads commands twice
+        """
+        <complete command>
+        <complete command>
+        """
+
+rule align_single: 
+    input:
+        fastq1 = "trimmed/{sample}_CROP{length}_1.fastq.gz",
+    output:
+        sam = "aligned/{sample}_CROP{length}_{genome}_{mode}.sam"
+    params:
+        genome = config["genome"]
+    shell:
+        """
+        if [ {params.genome} == "hg19" ]; then
+            <complete command>
+        elif [ {params.genome} == "hg38" ]; then
+            <complete command>
+        else
+            echo "Invalid genome"
+        fi
+        """
+
+rule align_paired:
+    input:
+        fastq1 = "trimmed/{sample}_CROP{length}_1.fastq.gz",
+        fastq2 = "trimmed/{sample}_CROP{length}_2.fastq.gz",
+    output:
+        sam = "aligned/{sample}_CROP{length}_{genome}_{mode}.sam"
+    params:
+        genome = config["genome"]
+    shell:
+        """
+        if [ {params.genome} == "hg19" ]; then
+            <complete command>
+        elif [ {params.genome} == "hg38" ]; then
+            <complete command>
+        else
+            echo "Invalid mode"
+        fi
+        """
+
+rule sam_to_bam:
+    input:
+        sam = "aligned/{sample}_CROP{length}_{genome}_{mode}.sam"
+    output: 
+        bam = "aligned/{sample}_CROP{length}_{genome}_{mode}.bam"
+    shell:
+        "samtools view -h -S -b -o {output.bam} {input.sam}"
+
+rule bam_to_bed:
+    input:
+        bam = "aligned/{sample}_CROP{length}_{genome}_{mode}.bam"
+    output:
+        bed = "bed/{sample}_CROP{length}_{genome}_{mode}.bed"
+    shell:
+        "<complete command>"
+
+rule liftover:
+    input:
+        bed = "bed/{sample}_CROP{length}_{genome}_{mode}.bed", 
+        chain = "/projects/bmeg/A2/hg19ToHg38.over.chain.gz"
+    output:
+        bed = "bed/{sample}_CROP{length}_{genome}_{mode}_lifted_hg38.bed",
+        unlifted = "bed/{sample}_CROP{length}_{genome}_{mode}_unlifted.bed",
+        confirmation = "aligned/lifted_over_{sample}_CROP{length}_{genome}_{mode}.done"
+    params:
+        genome = config["genome"]
+    shell:
+        """
+        if [ {params.genome} == "hg19" ]; then
+            <complete command>
+            touch {output.confirmation}
+        elif [ {params.genome} == "hg38" ]; then
+            echo "No need to lift over"
+        else
+            echo "Invalid mode"
+        fi
+        """
+
+rule count_unique_reads:
+    input:
+        bam = "aligned/{sample}_CROP{length}_{genome}_{mode}.bam"
+    output:
+        counts = "counts/{sample}_CROP{length}_{genome}_{mode}_nReads.txt"
+    shell:
+        "sambamba view <complete command>"
+        "\"[XS] == null and not unmapped and <complete command>\" {input.bam} > {output.counts}"
+
+```
+
+For full marks you will need:
+
+-   One Snakefile
+
+-   The ability to alternatively run with either single or paired-end alignment mode (also trimming the reads appropriately)
+
+-   The ability to align to either hg19 or hg38
+
+-   The following outputs: trimmed fastq, sam, bam, bed, and counts files for each run (not all of these need to be in the rule all necessarily)
+
+-   Different runs should not overwrite one another (i.e. the output files should be named differently for each run)
+
+You can use `snakemake -np` to perform a dry-run and debug your snakefile. Once you are confident that your snakefile is working correctly you can run it on the server. Run your snakefile using the following command: `snakemake --cores 1 --resources mem_mb=4000`. Each time modify the config file to change the parameters of your pipeline. Once you have completed all of your runs (5 runs in total, remember that snakemake, when configured correctly will not run redundant jobs) you can move on to the next section.
+
+**NOTE: Each run will take 15-20min to complete. Most of the time will be taken up by the align rule which will run each time.** Please ensure you start early.
+
+### 3. Analyzing the results (18 pts)
+
+#### a. Effect of read length on mappability
+
+Download the count files generated by your various runs onto your *local* computer into your A2 project folder. Once you have downloaded the files you can begin your analysis in R.
+
+```{r, eval=TRUE}
+#?# 7. Plot the number of uniquely mapped reads for each read length (1 pt).
+
+# Include the code you used to generate the plot in this block. When you knit your document the plot will be generated and displayed below.
+
+```
+
+```{r, FALSE}
+#?# 8. Based on the results of your analysis, what is the relationship between read length and mappability? Define the relationship mathematically. (1 pts)
+
+```
+
+#?# 9. What would you predict the number of uniquely mapped reads would be for a 25bp read? What assumptions are you making in your prediction? (2 pt) \# HINT: Think about what the result above would indicate for the mapping rate of a 0bp read.
+
+```         
+```
+
+#### b. Effect of reference genome on mappability
+
+```{r, eval=TRUE}
+#?# 10. Plot the number of uniquely mapped reads for each reference genome (1 pt)
+
+# Include the code you used to generate the plot in this block. When you knit your document the plot will be generated and displayed below.
+
+```
+
+#?# 11. Interpret the plot above, what does it tell you about the the hg19 and hg38 alignments? (1.5 pts)
+
+```         
+```
+
+Next we will check to see not whether the number of uniquely mapping reads has changed, but whether the reads are mapping to the same location after lifting over and whether the alignment *quality* has changed. In order to compare the positions/scores of reads we will have to extract the relevant information from the bed files generated by the pipeline. You can use the `join` command to merge the hg19_lifted_over and hg38 bed files together. *Make sure that you sort your bedfiles by **read name** before merging*. You can sort the bedfiles using the `sort` command.
+
+You only want to include these columns in your merged bed file: `read_ID,chr_hg38,start_hg38,end_hg38,score_hg38,chr_hg19,start_hg19,end_hg19,score_hg19` (hg19 refers to the lifted over file though its start and end coordinates are technically referring to hg38 as well.) You should have each of these columns *in the order specified*. You can use arguments of the `join` command to modify which columns end up in the output and in which order.
+
+```{r, eval=TRUE}
+#?# 12. Create a barchart illustrating the difference in mean alignment score between the hg19 (lifted-over) and hg38 alignments for each of the autosomal chromosomes (2 pts).
+
+# Include the code you used to generate the plot in this block. When you knit your document the plot will be generated and displayed below.
+
+```
+
+#?# 13. Interpret the plot you created in Q12 above. What do you notice, explain why you think the plot looks the way it does. (3 pts)
+
+```         
+```
+
+```{r, eval=TRUE}
+#?# 14. Create a boxplot illustrating the *difference* in start position of reads between the hg19 (lifted-over) and hg38 alignments for each of the autosomal chromosomes (2 pts)
+
+# Include the code you used to generate the plot in this block. When you knit your document the plot will be generated and displayed below.
+
+```
+
+#?# 15. Which chromosomes have the smallest difference(s) in start position between the hg19 and hg38 alignments? Why do you think this is? (2.5 pts)
+
+```         
+```
+
+#### c. Effect of alignment mode on mappability
+
+```{r, eval=TRUE}
+#?# 16. Plot another barchart comparing the number of uniquely mapped reads for each alignment mode (1 pt)
+
+```
+
+#?# 17. As we saw before, the read length was directly related to the number of uniquely mapped reads in a single-end alignment. Do you expect a *similar* relationship (i.e. direction and rough size of slope) exists for paired-end alignments? Why or why not? (1 pt)
+
+```         
+```
+
+## Discussion (8 pts):
+
+#?# 18. Assuming a background genome **composed randomly** (made of randomly sampled bases, 0.25 probability for each base), derive a relationship between the length of a read and the probability that it will map to a unique location in the random-genome. Show your work. (1 pts)
+
+```         
+```
+
+#?# 19. Would all 20bp sequences be expected to map to a random genome (from Q18) with equal frequency? Why or why not? (1 pt)
+
+```         
+```
+
+#?# 20. Would the difference between SE and PE alignment remain the same if you had used the 150bp reads? Why or why not? (2 pts)
+
+```         
+```
+
+#?# 21. Trimmomatic can also be used to trim reads based on their quality score. What impact will trimming reads according to read quality to have on alignment/mapping? Use evidence from your data to test your hypothesis. (4 pts)
+
+```         
+```
+
+# Contributions
+
+Please note here the team members and their contributions to this assignment.
