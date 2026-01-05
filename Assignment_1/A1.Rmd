@@ -1,102 +1,120 @@
 ---
-title: BMEG 424 Assignment 1
+title: BMEG 424/524 Assignment 1
 output:
   github_document:
     toc: true
     toc_depth: 4
 ---
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-# BMEG 424 Assignment 0: Introduction and Pipelines
+
+# BMEG 424/524 Assignment 1: Pipelines
+
 ## Introduction:
+
 ### General Information About Assignments
+
 We would like to begin by reminding you of some of the key rules and regulations you will have to follow for the assignments in this course:
 
-- All assignments are to be completed individually or with one partner
-  
-- If you choose to work in pairs for an assignment, **ONE** of you should make a submission on canvas. In the submission you **MUST** report the name & student number of BOTH partners. 
+-   All assignments are to be completed individually or with one partner
 
-- Each time you work with a new partner you will need to create a new GitHub repo for that assignment. You should share your repos with the @BMEGGenoInfo account on Github so TAs have access to your submission.
+-   If you choose to work in pairs for an assignment, **ONE** of you should make a submission on canvas. In the submission you **MUST** report the name & student number of BOTH partners.
 
-- Late assignments will have 10% deducted for each day they are late and assignments will not be accepted >3 days late. Making changes to the files on your repo after the assignment has been submitted on Canvas will result in a late penalty unless an instructor has specifically asked you to change something.
+-   Each time you work with a new partner you will need to create a new GitHub repo for that assignment. You should share your repos with the @BMEGGenoInfo account on Github so TAs have access to your submission.
 
-- Each student will have to ensure their assignment files are knit correctly (see below for instructions) and legible on GitHub. 20% or more of the assignment marks can be removed at the TA's discretion for incorrect knitting or formatting of assignment files.
+-   Late assignments will have 10% deducted for each day they are late and assignments will not be accepted \>3 days late. Making changes to the files on your repo after the assignment has been submitted on Canvas will result in a late penalty unless an instructor has specifically asked you to change something.
 
-- We are aware that some of you will choose to use large language models like ChatGPT to complete some portions of the assignment. You are free to use ChatGPT or other LLMs to help you on the assignment, *provided you cite the model and a link to the conversation* (see [here](https://help.openai.com/en/articles/7925741-chatgpt-shared-links-faq) for how to do this with ChatGPT)
+-   Each student will have to ensure their assignment files are knit correctly (see below for instructions) and legible on GitHub. 20% or more of the assignment marks can be removed at the TA's discretion for incorrect knitting or formatting of assignment files.
 
-- More generally, it is a requirement that you include any and all sources from where you received help (excluding your previously mentioned partner) or information for completing any question on the assignments. If you are unsure of when/how to cite your sources (including LLMs), please get in contact with the instructors.
-  
-If any of these rules are unclear please get in contact with the instructors. 
+-   We are aware that some of you will choose to use large language models like ChatGPT to complete some portions of the assignment. You are free to use ChatGPT or other LLMs to help you on the assignment, *provided you cite the model and a link to the conversation* (see [here](https://help.openai.com/en/articles/7925741-chatgpt-shared-links-faq) for how to do this with ChatGPT)
 
-### Data 
-The data for this assignment is located at `/projects/bmeg/assignments/A1/`. You will be working with a subset of sequencing data from a patient. The data is in the fastq format.
+-   More generally, it is a requirement that you include any and all sources from where you received help (excluding your previously mentioned partner) or information for completing any question on the assignments. If you are unsure of when/how to cite your sources (including LLMs), please get in contact with the instructors.
 
-### Software 
-Before you begin working on this assignment, you'll need to create a conda environment with all of the relevant software tools installed. You can do this by locating the yaml file in `/projects/bmeg/A1/` and running `conda env create -f /projects/bmeg/A1/A1_environment.yaml --prefix <path_to_your_env>`. You can then activate your environment by running `conda activate <path_to_your_env>`.
+If any of these rules are unclear please get in contact with the instructors.
+
+### Data
+
+The data for this assignment is located at `/projects/bmeg/A1/`. You will be working with a subset of sequencing data from a patient. The data is in the fastq format.
+
+### Software
+
+Before you begin working on this assignment, you'll need to create a conda environment with all of the relevant software tools installed. You can do this by locating the yaml file in `/projects/bmeg/A1/` and running `conda env create -f /projects/bmeg/A1/A1_environment.yaml --prefix <path_to_your_env>`. You can then activate your environment by running `conda activate <path_to_your_env>` after it has been installed.
 
 The tools you will be using for this assignment are:
-- fastQC (https://www.bioinformatics.babraham.ac.uk/projects/fastqc/): comprehensive quality control measures of sequencing data.
-- bowtie2 (http://bowtie-bio.sourceforge.net/bowtie2/index.shtml): alignments of sequencing data.
-- htop & screen: bash system tools to visualize the server capacity and to run commands in the background, respectively
-- samtools (http://www.htslib.org/): manipulation of sequencing data.
-- mpileup: a part of samtools which is used for variant calling from sequencing data. Will be installed with samtools.
-- bcftools (http://www.htslib.org/): a part of samtools which is used for variant calling from sequencing data. Will be installed with samtools.
 
+-   fastQC (<https://www.bioinformatics.babraham.ac.uk/projects/fastqc/>): comprehensive quality control measures of sequencing data.
+
+-   bowtie2 (<http://bowtie-bio.sourceforge.net/bowtie2/index.shtml>): alignments of sequencing data.
+
+-   htop & screen: bash system tools to visualize the server capacity and to run commands in the background, respectively
+
+-   samtools (<http://www.htslib.org/>): manipulation of sequencing data.
+
+-   mpileup: a part of samtools which is used for variant calling from sequencing data. Will be installed with samtools.
+
+-   bcftools (<http://www.htslib.org/>): a part of samtools which is used for variant calling from sequencing data. Will be installed with samtools.
 
 ### Goal
-The purpose of this assignment is to introduce you to the tools (command line and R) and concepts (reproducibility, parallelization, data manipulation etc.) that you will use throughout the course. This assignment focuses on the construction of pipelines, which are useful for ensuring your analysis is reproducible and efficient. 
 
-For this assignment we will be working with patient samples, and using Snakemake to build a pipeline for calling variants from sequencing data. Note that you really don't need any understand of what variant calling is to complete this assignment, and we will cover it in more detail later in the course. 
+The purpose of this assignment is to introduce you to the tools (command line and R) and concepts (reproducibility, parallelization, data manipulation etc.) that you will use throughout the course. This assignment focuses on the construction of pipelines, which are useful for ensuring your analysis is reproducible and efficient.
+
+For this assignment we will be working with patient samples, and using Snakemake to build a pipeline for calling variants from sequencing data. Note that you really don't need any understand of what variant calling is to complete this assignment, and we will cover it in more detail later in the course.
 
 ### Submission:
+
 Submit your assignment as a knitted RMarkdown document. You will push your knitted RMarkdown document to your github repository (one for each group). You will then submit the link, along with the names and student numbers of all students who worked on the assignment to the assignment 1 page on Canvas. Your assignment should be submitted, and your last commit should be made, before 11:59pm on the day of the deadline. Late assignments will will be deducted 10% per day late. Assignments will not be accepted after 3 days past the deadline.
 
 Please ensure you have knit your file to the "github_document" format before submitting. If the file is not viewable on Github without downloading, it will be considered improperly formated and will be subject to the 20% markdown.
 
 ## Experiment and Analysis (20.75 pts):
+
 ### Part 1: Pipelines
+
 Pipelines are a useful way to organize and automate your analysis of data. They allow you to set up a series of steps in a predefined and predictable order. This may seem like a waste of time on these assignments where you are only analyzing a single or a handful of samples, but it will be essential when you are analyzing hundreds or thousands of samples.
 
 #### a. Setting up a pipeline
-For this course we will be using a pipeline manager called Snakemake (https://snakemake.readthedocs.io/en/stable/). Snakemake is a python based pipeline manager which will easily interface with conda and your various software tools installed thereby. Snakemake also handles many of the common issues in pipeline management like parallelization, dependency management, error handling, and run configuration/customization.
 
-First we'll need to add snakemake to our conda environment. You can do this by typing `conda install -c bioconda snakemake` into the command line. 
- 
-First create a directory within your A1 directory called "pipeline". Then create a file called "Snakefile" within the pipeline directory. 
+For this course we will be using a pipeline manager called Snakemake (<https://snakemake.readthedocs.io/en/stable/>). Snakemake is a python based pipeline manager which will easily interface with conda and your various software tools installed thereby. Snakemake also handles many of the common issues in pipeline management like parallelization, dependency management, error handling, and run configuration/customization.
 
-Snakemake uses a python based syntax to define the steps in your pipeline, these steps are called "rules". Each rule has a set of inputs, and a set of outputs. Rule are dependent on one another based on their inputs and outputs. For example, if rule A has an output which is the input for rule B, then rule B will not run until rule A has completed. Rules which are not dependent on one another will run in parallel. 
+First we'll need to add snakemake to our conda environment. Note, this, along with all other installations are done for you in the yaml file we used earlier. If you were to install it manually, you would type `conda install -c bioconda snakemake` into the command line.
 
-Create your Snakefile in the pipeline directory. Here is an example of the rule for running fastqc on your input data (which should now be in ~/A1/).
-```
+First create a directory within your A1 directory called "pipeline". Then create a file called "Snakefile" within the pipeline directory.
+
+Snakemake uses a python based syntax to define the steps in your pipeline, these steps are called "rules". Each rule has a set of inputs, and a set of outputs. Rule are dependent on one another based on their inputs and outputs. For example, if rule A has an output which is the input for rule B, then rule B will not run until rule A has completed. Rules which are not dependent on one another will run in parallel.
+
+Create your Snakefile in the pipeline directory. Here is an example of the rule for running fastqc on your input data (which should now be in \~/A1/). Use cp (copy command) to copy the data from /projects/bmeg/A1, do not try mv as this relocates the data. Note, you may organize your directories/assignments however you want - but be sure to use correct paths inside of the pipelines/Snakefiles you create.
+
+```         
 rule fastqc:
     input:
-        "/path/to/data/{sample}_1.fastq.gz", # Please move the data to your A1 directory, and replace this path with the correct path
+        "/path/to/data/{sample}_1.fastq.gz", # Please COPY the data to your A1 directory, and replace this path with the correct path
         "/path/to/data/{sample}_2.fastq.gz"
     output:
         "fastqc/{sample}_1_fastqc.html",
         "fastqc/{sample}_2_fastqc.html"
     shell:
         "fastqc {input} --outdir fastqc"
-
 ```
-
 
 You can see that the rule has an input and an output. The input is the path to the raw sequencing data, and the output is the path to the fastqc output. The shell command is the command that will be run when the rule is executed.
 
 #### b. Running the pipeline
+
 Our pipeline will consist of the following steps:
-- Quality control of the raw sequencing data (fastqc)
-  
-- Alignment of the sequencing data to the reference genome (bowtie2, paired-end using both forward and reverse reads and the hg38 genome)
-  
-- Sorting the aligned data (samtools)
-  
-- Variant calling (bcftools; installed with samtools)
+
+-   Quality control of the raw sequencing data (fastqc)
+
+-   Alignment of the sequencing data to the reference genome (bowtie2, paired-end using both forward and reverse reads and the hg38 genome)
+
+-   Sorting the aligned data (samtools)
+
+-   Variant calling (bcftools; installed with samtools)
 
 It is up to you to implement the remaining steps:
 
-```
+```         
 #?# 1. Fill in the rest of the Snakefile to include rules for sorting the aligned data, indexing the sorted data, and calling variants. (5 pts)
 
 
@@ -152,18 +170,17 @@ rule bcftools_call:
     shell:
         "samtools mpileup -uf {input.genome} {input.bam} | "
         "bcftools call -mv -Ov -o {output}"
-
-
 ```
 
-Before you start running your snakefile you will need to make sure it is set up correctly. You can type `snakemake -np` into the command line to check that your snakefile is set up correctly. Note this will only work if your snakefile is called "Snakefile" and is in your current working directory. 
+Before you start running your snakefile you will need to make sure it is set up correctly. You can type `snakemake -np` into the command line to check that your snakefile is set up correctly. Note this will only work if your snakefile is called "Snakefile" and is in your current working directory.
 
-You should also check to see that the dependency map of your snakefile is correct. Once you have confirmed that your snakefile is set up correctly you can type `snakemake --dag | dot -Tsvg > dag.svg` into the command line to generate a dependency map of your snakefile. You can view the dependency map by typing `eog dag.svg` into the command line. 
+You should also check to see that the dependency map of your snakefile is correct. Once you have confirmed that your snakefile is set up correctly you can type `snakemake --dag | dot -Tsvg > dag.svg` into the command line to generate a dependency map of your snakefile. You can view the dependency map by typing `eog dag.svg` into the command line.
 
 ```{bash, eval=FALSE}
 #?# 2. Include the dependency map of your Snakefile below using Rmarkdown syntax (1 pts)
 # The correct Rmarkdown syntax is ![NameOfImg](path/to/dag.svg) 
 ```
+
 ![dag](dag.svg)
 
 ```{bash, eval=FALSE}
@@ -171,40 +188,45 @@ You should also check to see that the dependency map of your snakefile is correc
 
 ```
 
-Run your pipeline on the sequence data provided. You can do this by typing `snakemake --use-conda --cores=1 --resources mem_mb=4000` into the command line. You can use screen and htop to check the server usage and determine the correct number of resources to allocate (NOTE: If you don't pass any resources to snakemake it will use all available resources on the server, which is very inconsiderate to your classmates). **Please do not exceed 4GB of memory per job or a single core**, use less if you think it's necessary. 
+Run your pipeline on the sequence data provided. You can do this by typing `snakemake --use-conda --cores=1 --resources mem_mb=4000` into the command line. You can use screen and htop to check the server usage and determine the correct number of resources to allocate (NOTE: If you don't pass any resources to snakemake it will use all available resources on the server, which is very inconsiderate to your classmates). **Please do not exceed 4GB of memory per job or a single core**, use less if you think it's necessary.
 
 ```{bash, eval=FALSE}
 #?# 4. Paste the output of snakemake here (0.25 pts)
 
 ```
-### Part 2: Quality Control
-#### a. Quality Control of raw sequencing data
-Download the fastqc reports from the fastqc directory and include each of the graphs in your Rmarkdown file the same way you included the dependency map. 
 
-```
+### Part 2: Quality Control
+
+#### a. Quality Control of raw sequencing data
+
+Download the fastqc reports from the fastqc directory and include each of the graphs in your Rmarkdown file the same way you included the dependency map.
+
+```         
 #?# 5. Include the fastqc graphs from the QC on the forward read (read 1) file in your Rmarkdown file below this block. For each graph include a brief description of what the graph is showing and whether or not you think the data passed the quality control. (5 pts) 
 # Please try to separate your descriptions by including an text block between for description. 
 ```
 
 ![FirstGraph](fastqc_1_1.png)
 
-```
+```         
 Description for graph 1
 ```
-... 
+
+...
 
 ### b. Quality control of the alignment
+
 For this section we will be using samtools to check the alignment of our data.
 
-```
+```         
 #?# 6. Use samtools flagstat to check the alignment rate of the sample you ran. Paste the output below (0.5 pts) and explain what the output means (1.5 pts)
-
 ```
 
 ### Part 3: Visualization and Downstream Analysis
+
 #### a. Setting up a reproducible analysis in R
-**Reminder that you will be doing your analysis in RStudio on your local computer.**
-Before you start analyzing the sequencing data, we will go over some essential methods for reproducible analysis in R. Generally installing packages in RStudio is very easy, with packages being maintained on the CRAN repository. For example to install the common ggplot visualization package in RStudio:
+
+**Reminder that you will be doing your analysis in RStudio on your local computer.** Before you start analyzing the sequencing data, we will go over some essential methods for reproducible analysis in R. Generally installing packages in RStudio is very easy, with packages being maintained on the CRAN repository. For example to install the common ggplot visualization package in RStudio:
 
 ```{r, eval=FALSE}
 install.packages("ggplot2")
@@ -218,20 +240,23 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
 }
 BiocManager::install("<package-name>")
 ```
-However RStudio does not generally save which versions of packages you had installed at the time of a particular analysis, so if you were trying to reproduce your analysis at a later date you might run into serious headaches either updating the code or trying to install (potentially hundreds of) outdated packages and dependencies. In order to solve this issue you can use package managers which work similarly to how conda managed our command line software. In this course we will be using the renv package. 
+
+However RStudio does not generally save which versions of packages you had installed at the time of a particular analysis, so if you were trying to reproduce your analysis at a later date you might run into serious headaches either updating the code or trying to install (potentially hundreds of) outdated packages and dependencies. In order to solve this issue you can use package managers which work similarly to how conda managed our command line software. In this course we will be using the renv package.
 
 ```{r, eval=FALSE}
 install.packages("renv")
 ```
 
-An R library is a directory on your computer where R stores all the packages you have installed. You can see where your system library is by typing `.libPaths()` into your R interpreter. Normally when you type `install.packages()` into your R interpreter you install (from a repository like CRAN or Bioconductor) into what's caled the system/global library. This is the equivalent of installing software directly onto your computer instead of within a conda environment in that the global library will be shared across all projects. This is a remarkably bad practice with regards to reproduciblity and project-based analysis. 
+An R library is a directory on your computer where R stores all the packages you have installed. You can see where your system library is by typing `.libPaths()` into your R interpreter. Normally when you type `install.packages()` into your R interpreter you install (from a repository like CRAN or Bioconductor) into what's caled the system/global library. This is the equivalent of installing software directly onto your computer instead of within a conda environment in that the global library will be shared across all projects. This is a remarkably bad practice with regards to reproduciblity and project-based analysis.
 
-Once you have renv installed you can create a new library by typing `renv::init()` into your R interpreter. This will create a new library in your current working directory. You can then install packages into this library by typing `renv::install()` into your R interpreter. You can also install packages from a specific repository by typing `renv::install("package_name", repos = "https://cran.rstudio.com")` into your R interpreter. Because renv doesn't interfere with existing package management workflows you can still use `install.packages() ` and `BiocManager::install()` to install packages into your project library so long as you've initialized renv in your project.
+Once you have renv installed you can create a new library by typing `renv::init()` into your R interpreter. This will create a new library in your current working directory. You can then install packages into this library by typing `renv::install()` into your R interpreter. You can also install packages from a specific repository by typing `renv::install("package_name", repos = "https://cran.rstudio.com")` into your R interpreter. Because renv doesn't interfere with existing package management workflows you can still use `install.packages()` and `BiocManager::install()` to install packages into your project library so long as you've initialized renv in your project.
 
 #### b. Basics of R Analysis
-For this section you will want to install tidyverse (https://www.tidyverse.org/), a collection of packages for data manipulation and visualization. We will need it for the ggplot2 package which it includes. 
 
-#?# 7. Below is an R function for reading a VCF file and counting the number of occurrences of each unique ref-alt pair in all of the SNPs present in the VCF file. There are a few bugs in the code. Debug the function (2 pts) and add comments to explain what each line of code is doing (1 pts). 
+For this section you will want to install tidyverse (<https://www.tidyverse.org/>), a collection of packages for data manipulation and visualization. We will need it for the ggplot2 package which it includes.
+
+#?# 7. Below is an R function for reading a VCF file and counting the number of occurrences of each unique ref-alt pair in all of the SNPs present in the VCF file. There are a few bugs in the code. Debug the function (2 pts) and add comments to explain what each line of code is doing (1 pts).
+
 ```{r}
 # NOTE: Delete all the #'s in this block to uncomment the code 
 # count_SNPs <- function(file_path) {
@@ -254,11 +279,14 @@ For this section you will want to install tidyverse (https://www.tidyverse.org/)
 ```
 
 #?# 8. Use the returned data frame to plot the ref-alt pairs for all SNPs as a bar plot (1 pts)
+
 ```{r}
 # Include the code you used to generate the plot in this block. When you knit your document the plot will be generated and displayed below.
 
 ```
+
 #?# 9. Included in the assignment repo is a plot which shows the distribution of **variants** across the genome. You can download and view this plot manually. Recreate this plot using the data from your sample. Include the original svg and your recreation in your submission. (4 pts)
+
 ```{r}
 # HINT: You'll want to start by looking at the documentation for the GenomicRanges and GenomicDistributions packages.
 # We know this question requires a deep dive into the documentation, this is by design as learning how to implement novel tools/packages is a key skill in bioinformatics.
@@ -269,32 +297,35 @@ library(GenomicDistributions)
 ![Chr1_VariantsvsPos](Chr1_VariantsvsPos.svg)
 
 #### c. Interactively viewing our variants in IGV
-You can download the IGV viewer from here: https://software.broadinstitute.org/software/igv/home. IGV is an interactive tool to visualize different data types of genetic information (e.g. bam, bed files). You will install this tool to your **local computer**. To visualize where the reads of our ChIP analysis mapped in the genome. 
 
-Once you boot up IGV select your reference genome and load your VCF file. Zoom into this position: `chr1: 1,000,000-1,100,000`. 
-```
+You can download the IGV viewer from here: <https://software.broadinstitute.org/software/igv/home>. IGV is an interactive tool to visualize different data types of genetic information (e.g. bam, bed files). You will install this tool to your **local computer**. To visualize where the reads of our ChIP analysis mapped in the genome.
+
+Once you boot up IGV select your reference genome and load your VCF file. Zoom into this position: `chr1: 1,000,000-1,100,000`.
+
+```         
 #?# 10. Post a screenshot of your IGV window below (1pts)
-
 ```
 
 ## Discussion (6 pts)
+
 #?# 11. Do you think the subset of sequence data you analyzed was from Whole Genome Sequencing or Whole Exome Sequencing? Justify your response with evidence. (4 pts)
+
 ```{r}
 
 ```
 
-
-Assuming your snakemake run was supposed to process 1000 samples instead of 1 sample. 
+Assuming your snakemake run was supposed to process 1000 samples instead of 1 sample.
 
 ```{bash, eval=FALSE}
 #?# 12. How would you go about checking the quality of all the samples? (1 pts)
 
 ```
 
-
 ```{bash, eval=FALSE}
 #?# 13. If the run crashed on sample 500, how would you go about restarting the run? (1 pts)
 
 ```
+
 # Contributions
+
 Please note here the team members and their contributions to this assignment.
