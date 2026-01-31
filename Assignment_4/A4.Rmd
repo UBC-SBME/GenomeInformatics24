@@ -1,16 +1,19 @@
 ---
-title: BMEG 424 Assignment 4
+title: BMEG 424/524 Assignment 4
 output:
   github_document:
     toc: true
     toc_depth: 4
+editor_options: 
+  markdown: 
+    wrap: sentence
 ---
 
-```{r setup, incldue=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# BMEG 424 Assignment 4: ATAC-seq
+# BMEG 424/524 Assignment 4: ATAC-seq
 
 ## Introduction:
 
@@ -30,7 +33,7 @@ We would like to begin by reminding you of some of the key rules and regulations
     Making changes to the files on your repo after the assignment has been submitted on Canvas will result in a late penalty unless an instructor has specifically asked you to change something.
 
 -   Each student will have to ensure their assignment files are knit correctly (see below for instructions) and legible on GitHub.
-    20% or more of the assignment marks can be removed at the TAs discretion for incorrect knitting or formatting of assignment files.
+    20% or more of the assignment marks can be removed at the TA's discretion for incorrect knitting or formatting of assignment files.
 
 -   We are aware that some of you will choose to use large language models like ChatGPT to complete some portions of the assignment.
     You are free to use ChatGPT or other LLMs to help you on the assignment, *provided you cite the model and a link to the conversation* (see [here](https://help.openai.com/en/articles/7925741-chatgpt-shared-links-faq) for how to do this with ChatGPT)
@@ -75,12 +78,13 @@ The packages are:
 
 ### Submission
 
-Submit your assignment as a **knitted** RMarkdown document.
-*Remember to specify the output as github_document* You will push your knitted RMarkdown document to your github repository (one for each group).
+**Submit your assignment as a knitted RMarkdown document**.
+*Remember to specify the output as github_document* **You will push your knitted RMarkdown document to your github repository** (one for each group).
 Double check that all files (including figures) necessary for your document to render properly are uploaded to your repository.
-
-You will then submit the link, along with the names and student numbers of all students who worked on the assignment to the assignment 3 page on Canvas. Your assignment should be submitted, and your last commit should be made, before 11:59pm on the day of the deadline. Late assignments will will be deducted 10% per day late. Assignments will not be accepted after 3 days past the deadline.
-**NOTE**: This assignment contains A LOT of marks attributed to figures looking right. Please make sure those figures are viewable on GitHub before the deadline.
+You will then submit the link to your GitHub repository, along with the names and student numbers of all students who worked on the assignment to the assignment 3 page on Canvas.
+Your assignment should be submtited, and your last commit should be made, before 11:59pm on the day of the deadline.
+Late assignments will will be deducted 10% per day late.
+Assignments will not be accepted after 3 days past the deadline.
 
 ## Experiment and Analysis:
 
@@ -94,11 +98,12 @@ In the study, the authors used drugs to mimic the effects of these cancer-associ
 
 #### a. Load and reformat data
 
-Download the data file from `/projects/bmeg/A4/` and load it into R using `read.table`, the code for this is provided below:
+Move the data from `/projects/bmeg/A4/` to your home directory `~/`, then scp/download it locally.
+Load with `read.table`, the code for this is provided below:
 
 ```{r}
 # Read in gzipped file from working directory
-downloaded_file_path <- "remote/400E_Assignment_Keys/W2025/A4/count_matrix_raw_atac_BRM014_ACBI1.csv.gz"
+downloaded_file_path <- "count_matrix_raw_atac_BRM014_ACBI1.csv.gz"
 atacSeqData <- read.table(gzfile(downloaded_file_path), sep = ",", stringsAsFactors = FALSE, header = TRUE)
 ```
 
@@ -153,7 +158,9 @@ chr1:181169-181759,R1,24h,BRM014, 18
 
 ```
 
-#?# 1. Format your data into tidy format like the example above (0.5 pts)
+#?#
+ 1.
+Format your data into tidy format like the example above (0.5 pts)
 
 ```{r}
 
@@ -161,24 +168,35 @@ chr1:181169-181759,R1,24h,BRM014, 18
 
 #### b. Exploratory Data Analysis
 
-#?# 2. In order to understand your data better create a heatmap of the read counts for each condition. (0.5 pts) 
-Have one subplot for each replicate, with timepoints on the y-axis, treatments on the x-axis, and tiles coloured by read count. You should include the number of reads on each tile as well. Note that your heat-map should plot ALL possible permutations of replicate-timepoint-treatment, even if missing from the data file.
+#?#
+2.
+In order to understand your data better create a heatmap of the read counts for each condition.
+(0.5 pts) Have one subplot for each replicate, with timepoints on the y-axis, treatments on the x-axis, and tiles coloured by read count.
+You should include the number of reads on each tile as well.
+Note that your heat-map should plot ALL possible permutations of replicate-timepoint-treatment, even if missing from the data file.
 (Example: There is no R1_6h_DMSO column in the original data but that tile should exist in your plot)
 
 ```{r}
 
 ```
 
-#?# 3. Interpret the plot above, what do you notice about the data? (1 pts)
-```
+#?#
+3.
+Interpret the plot above, what do you notice about the data?
+(1 pts)
 
+```         
 ```
 
 For the rest of this assignment we are only interested in the BRM014, BI_protac and control conditions.
 We will only compare them at the 24h timepoint (this is the only timepoint where all three conditions were measured).
 Using the tidy-formatted data you generated in above (in the format like shown on lines 88-92):
 
-#?# 4. Filter your data to only include the BRM014, BI_protac and control conditions at the 24h timepoint. **Keep both replicates**. (0.5 pts)
+#?#
+4.
+Filter your data to only include the BRM014, BI_protac and control conditions at the 24h timepoint.
+**Keep both replicates**.
+(0.5 pts)
 
 ```{r}
 
@@ -197,14 +215,23 @@ atacSeqDataSOI <- atacSeqDataSOI %>%
     mutate(countsPerMillion = 1000000 * read_count / sum(read_count))
 ```
 
-#?# 5. What does CPM normalize for? Is this necessary for our data? How do you know? (1 pts)
+#?#
+5.
+What does CPM normalize for?
+Is this necessary for our data?
+How do you know?
+(1 pts)
+
+```         
 ```
 
-```
+#?#
+6.
+Are there some *non-normalization* methods that would be good alternatives to CPM?
+Discuss potential advantages and disadvantages of these methods.
+(1 pts)
 
-#?# 6. Are there some *non-normalization* methods that would be good alternatives to CPM? Discuss potential advantages and disadvantages of these methods. (1 pts)
-```
-
+```         
 ```
 
 #?#
@@ -218,12 +245,19 @@ Use different colours for each curve.
 
 ```
 
-#?# 8. Interpret the plot above, what do you notice about the data? (0.5 pts)
+#?#
+8.
+Interpret the plot above, what do you notice about the data?
+(0.5 pts)
+
+```         
 ```
 
-```
-
-#?# 9. Filter any regions which have a CPM (in any condition) of >400 into a separate data.frame and inspect them. What do you notice about these regions? (1.5 pts)
+#?#
+9.
+Filter any regions which have a CPM (in any condition) of \>400 into a separate data.frame and inspect them.
+What do you notice about these regions?
+(1.5 pts)
 
 ```{r}
 # HINT: Once you've generated your new data frame you can view it as a table in RStudio by clicking on the data frame in the environment tab and then clicking "view" or export it to a csv file using the write.table function
@@ -236,12 +270,20 @@ We will now filter our data to remove regions which have very low read counts.
 This is a common step in ATAC-seq analysis as regions with very low read counts are often not real and are instead the result of noise in the data.
 We will remove regions which have a mean of less than 10 reads.
 
-#?# 10. Filter your data to remove regions which have a mean of less than 10 reads across our samples of interest. (0.5 pts)
+#?#
+10.
+Filter your data to remove regions which have a mean of less than 10 reads across our samples of interest.
+(0.5 pts)
+
 ```{r}
 
 ```
 
-#?# 11. Remove any mitochondrial regions from your data. (0.5 pts)
+#?#
+11.
+Remove any mitochondrial regions from your data.
+(0.5 pts)
+
 ```{r}
 
 ```
@@ -253,23 +295,27 @@ We will be using the edgeR package to do this.
 edgeR is a package which is used to identify differentially expressed genes in RNA-seq data.
 We will be using it to identify differentially accessible regions in our ATAC-seq data.
 
-edgeR will require the data to be back in wide format for the analysis. We will need to convert our data back into wide format before we can continue. 
+edgeR will require the data to be back in wide format for the analysis.
+We will need to convert our data back into wide format before we can continue.
 Your data should look like this (there are no values in the table below, this is just to show you the general structure):
-```
-                        R1_24h_control	R1_24h_BI-protac	R2_24h_control	R2_24h_BI-protac 
+
+```         
+                        R1_24h_control  R1_24h_BI-protac    R2_24h_control  R2_24h_BI-protac 
 chr4:84336780-84337568   
 chr8:112059072-112060092 
 chr17:55482241-55483505
-
 ```
 
 Below we've provided a function which will:
 
-1. Format your data like above
-   
-2. Perform differential accessibility analysis on your data. You can use this function to perform differential accessibility analysis on your data.
+1.  Format your data like above
 
-**NOTE**: This function may not work as is, if you've done any of the above steps incorrectly or even if you've done them 'correctly' but in a way we didn't expect, you may need to modify the function to get it to run with your own data. A common error in previous years was the datatype being incorrect.
+2.  Perform differential accessibility analysis on your data.
+    You can use this function to perform differential accessibility analysis on your data.
+
+**NOTE**: This function may not work as is, if you've done any of the above steps incorrectly or even if you've done them 'correctly' but in a way we didn't expect, you may need to modify the function to get it to run with your own data.
+A common error in previous years was the datatype being incorrect.
+
 ```{r}
 library(csaw)
 library(edgeR)
@@ -322,19 +368,33 @@ You should perform each of the following comparisons:
 -   Control vs BRM014
 -   BRM014 vs BI_protac
 
-#?# 12. Run the above function *six* times to perform each of the comparisons listed above. You should perform each comparison with loess and TMM normalization (1 pts)
+#?#
+12.
+Run the above function *six* times to perform each of the comparisons listed above.
+You should perform each comparison with loess and TMM normalization (1 pts)
+
 ```{r}
 
 ```
 
-#?# 13. Create 6 MA plots (using ggplot) for each of the comparisons you performed in the previous question. Present them as subplots of the same figure. (1 pts)
+#?#
+13.
+Create 6 MA plots (using ggplot) for each of the comparisons you performed in the previous question.
+Present them as subplots of the same figure.
+(1 pts)
+
 ```{r}
 # HINT: There are many packages which implement MA plots in R, you are supposed to use ggplot to make them manually.
 library(gridExtra) # This package will be useful for creating subplots
 
 ```
 
-#?# 14. Create (using ggplot) a volcano plot for the comparison between BRM014 and BI_protac (loess normalized), with -log10(p-value) on the y axis and logFC on the x. Colour points that are significant at a FDR<0.01. (0.5 pts)
+#?#
+14.
+Create (using ggplot) a volcano plot for the comparison between BRM014 and BI_protac (loess normalized), with -log10(p-value) on the y axis and logFC on the x.
+Colour points that are significant at a FDR\<0.01.
+(0.5 pts)
+
 ```{r}
 
 ```
@@ -369,11 +429,23 @@ You can do this using the `write.table` function.
 You'll need to separate the "region" column in your differential analysis results into three columns: chromosome, start and end.
 You can do this using the `separate` function from the `tidyr` package or using regular expressions (regex).
 
-#?# 15. Create a pseudo-BED file for each of the results of your differential analysis. Fill in the code you used below. (1pts)
+#?#
+15.
+Create a pseudo-BED file for each of the results of your differential analysis.
+Fill in the code you used below.
+(1pts)
+
 ```{r, eval=FALSE}
 
 ```
 
+#?#
+16.
+Print the length of both bed files, do you notice anything interesting?
+(0.5 pts)
+
+```         
+```
 
 #### b. Interpreting your results
 
@@ -389,26 +461,40 @@ Once you have tested your data on GREAT you will be presented with a list of GO 
 You can click on each GO term to see the genes which are associated with that term.
 You can also click on the "Genes" tab to see all of the genes which are associated with your data.
 
-#?# 16. Upload your (loess normalized) ControlvsBRM014 and ControlvsBI_protac results to GREAT. Insert a screenshot of the top 20 associated ENSEMBL genes for each comparison. (1 pts)
-![]()
+#?#
+17.
+Upload your (loess normalized) ControlvsBRM014 and ControlvsBI_protac results to GREAT.
+Insert a screenshot of the top 20 associated ENSEMBL genes for each comparison.
+(1 pts) ![]()
 
 ![]()
-
-
 
 ## Discussion
-#?# 17. Based on your analysis above, what effect do you think BRM014 and BI_protac had on chromatin accessibility? Are they similar? Use evidence from your analysis to support your response (2 pts) 
+
+#?#
+18.
+Based on your analysis above, what effect do you think BRM014 and BI_protac had on chromatin accessibility?
+Are they similar?
+Use evidence from your analysis to support your response (4 pts)
+
+```         
 ```
 
+#?#
+19.
+Based on your analysis above, can you tell if BRM014 and/or BI_protac are good pharmacological models for studying the effects of the cancer-associated mutations the authors were trying to mimic?
+Why or why not?
+(2 pts)
+
+```         
+#HINT: Consider your response to Q16
 ```
 
-#?# 18. Based on your analysis above, can you tell if BRM014 and/or BI_protac are good pharmacological models for studying the effects of the cancer-associated mutations the authors were trying to mimic? Why or why not? (2 pts)
-```
-#HINT: Print the length of the bed files you made above, do you notice anything interesting? 
+#?#
+21.
+We used two normalization methods in our differential accessibility analysis, TMM and Loess.
+Which do you think is more reliable for our data, and why?
+(2 pts)
 
-```
-
-#?# 19. We used two normalization methods in our differential accessibility analysis, TMM and Loess. Which do you think is more reliable for our data, and why? (2 pts)
-```
-
+```         
 ```
