@@ -1,5 +1,5 @@
 ---
-title: BMEG 424 Assignment 5
+title: BMEG 424/524 Assignment 5
 output:
   github_document:
     toc: true
@@ -10,7 +10,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# BMEG 424 Assignment 5: Machine Learning for Genome Informatics
+# BMEG 424/524 Assignment 5: Machine Learning
 
 ## Introduction:
 
@@ -46,7 +46,7 @@ Another additional benefit is that you will have all of the necessary libraries 
 
 ### Submission:
 
-Submit your assignment as a knitted RMarkdown document. *Remember to specify the output as github_document* You will push your knitted RMarkdown document to your github repository (one for each group). Double check that all files (including figures) necessary for your document to render properly are uploaded to your repository. **Note**: In this assignment we are also asking you to upload your .ipynb file from Google colab (go to file\>download\>download .ipynb) and push it along with your RMarkdown document.
+**Submit your assignment as a knitted RMarkdown document**. *Remember to specify the output as github_document* **You will push your knitted RMarkdown document to your github repository** (one for each group). Double check that all files (including figures) necessary for your document to render properly are uploaded to your repository. You will then submit the link to your GitHub repository, along with the names and student numbers of all students who worked on the assignment to the assignment 3 page on Canvas. Your assignment should be submitted, and your last commit should be made, before 11:59pm on the day of the deadline. Late assignments will will be deducted 10% per day late. Assignments will not be accepted after 3 days past the deadline. **NOTE**: In this assignment we are also asking you to upload your .ipynb file from Google colab (go to file\>download\>download .ipynb) and push it along with your RMarkdown document.
 
 You will then submit the link, along with the names and student numbers of all students who worked on the assignment to the assignment 3 page on Canvas. Your assignment should be submtited, and your last commit should be made, before 11:59pm on the day of the deadline. Late assignments will will be deducted 10% per day late. Assignments will not be accepted after 3 days past the deadline.
 
