@@ -451,7 +451,7 @@ pt)
 #?# 19. Use nextflow to run the pgsc_calc pipeline on the bfile files located in /projects/bmeg/A6/pgsc_calc/. (1 pt) Remember to use:
 # - the sample sheet mentioned in the previous paragraph
 # - the EFO id mentioned in the paragraph
-# - the hg38 (GRCh37) reference genome
+# - the hg19 (GRCh37) reference genome
 # - the conda profile
 # - a minimum overlap of 0.45
 
