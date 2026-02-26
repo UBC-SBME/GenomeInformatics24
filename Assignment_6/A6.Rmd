@@ -72,6 +72,8 @@ We will be using a few new tools in this assignment:
     installed on the server but **we will install it via conda, ensure
     you are using the correct version.**
 
+    **USE THE PROVIDED CONDA YML FILE FOR SIMPLICITY.**
+
 ### Other notes:
 
 -   As always you must cite any sources you use in your assignment
@@ -101,7 +103,7 @@ document to render properly are uploaded to your repository.
 
 You will then submit the link, along with the names and student numbers
 of all students who worked on the assignment to the assignment 3 page on
-Canvas. Your assignment should be submtited, and your last commit should
+Canvas. Your assignment should be submitted, and your last commit should
 be made, before 11:59pm on the day of the deadline. Late assignments
 will be deducted 10% per day late. Assignments will not be accepted
 after 3 days past the deadline.
@@ -128,10 +130,9 @@ measuring for our MiniCohort:
     a true rare-allele and sequencing errors. For our data we would like
     to *remove all SNPs with a MAF lower than 1%*.
 
-3.  **Sample call rate:** Similar to SNP call rate, it allows to filter
-    out all samples exceeding 98% missing genetic variants out of all
-    the calls. Four our data we would like to *remove all samples with
-    more than 2% missingness*.
+3.  **Sample call rate:** Similar to SNP call rate, we retain samples
+    with greater than \~98% calls. For our data we would like to *remove
+    all samples with more than 2% missingness*.
 
 You can perform all of these filters using a single command calling
 `plink`. Take a look at the plink documentation and add the arguments to
@@ -140,7 +141,8 @@ the command below to perform the QC.
 ```{bash, eval=FALSE}
 #?# 1. Fill in the following command and use it to perform the QC on the Mini-Cohort data. Read the instructions above carefully to get the right values for each argument. (1 pt)
 
-plink --bfile /projects/bmeg/A6/MiniCohort/Mini_cohort <args> --out /home/<username>/A6/MiniCohort/Mini_cohort_QCed
+plink --bfile /projects/bmeg/A6/MiniCohort/Mini_cohort --out /home/<user>/assignments/a6/MiniCohort/Mini_cohort_QCed
+
 
 ```
 
@@ -174,8 +176,9 @@ association of alleles at different loci. This means that if you know
 the genotype of one SNP, you can make an educated guess about the
 genotype of another SNP. This is a problem for PCA because it will add
 redundancy to the data which means those regions will dominate the top
-PCs and obscure the true data structure. Therefore, we need to remove
-SNPs in high LD before performing the PCA.
+PCs and obscure the true data structure. Therefore, we should remove
+SNPs in high LD before performing the PCA if our goal is to focus on the
+entire genome, and not separate by LD-blocks.
 
 We have curated a list of high LD regions for you located in
 `/projects/bmeg/A6/high_LD_regions_hg19.txt` which you can use to remove
@@ -237,7 +240,6 @@ from your Mini_Cohort (containing our GWAS data) and the 1000G_reference
 ## NOTE: Remember to create a new bfile (.fam, .bed and .bim files) that contains the merged data.
 ## IMPORTANT TIME CONSTRAINT: This step can take ~15 minutes, so make sure to check the server status before you run it!
 
-
 ```
 
 You can now perform a PCA on the merged bfile you output in the last
@@ -245,7 +247,6 @@ step:
 
 ```{bash, eval=FALSE}
 #?# 6. Using plink, perform a PCA analysis in plink on the merged set (0.5pts)
-
 
 
 ```
@@ -312,10 +313,11 @@ and then calculate the average imputation quality for each population.
 #?# 12. What is the percentage of imputed SNPs? (1 pt)
 
 ```         
+ANSWER HERE
 ```
 
 ```{r}
-
+# code here
 ```
 
 The metric of imputation quality is Rsq, this is the estimated value of
@@ -385,10 +387,7 @@ individual in the Mini Cohort and plot them using a histogram (1.0 pts).
 
 ```{r}
 # Tip: You only need the files in the tapas directory to complete this question
-## compute PRSs
 
-
-## plot histogram
 ```
 
 #?# 17. What do you notice about the distribution of the PRSs? (0.5 pt)
@@ -445,13 +444,14 @@ MONDO_0008315.
 pt)
 
 ```         
+# 1pts - prostate cancer
 ```
 
 ```{bash, eval=FALSE}
 #?# 19. Use nextflow to run the pgsc_calc pipeline on the bfile files located in /projects/bmeg/A6/pgsc_calc/. (1 pt) Remember to use:
 # - the sample sheet mentioned in the previous paragraph
 # - the EFO id mentioned in the paragraph
-# - the hg19 (GRCh37) reference genome
+# - the hg38 (GRCh37) reference genome
 # - the conda profile
 # - a minimum overlap of 0.45
 
@@ -459,8 +459,8 @@ pt)
 
 ## Discussion (9 pts)
 
-#?# 20. What assumption of PCA is violated by the presence of SNPs in LD
-with one another? (1pt)
+#?# 20. What assumption, if any, of PCA is violated by the presence of
+SNPs in LD with one another? Why? (1pt)
 
 ```         
 ```
